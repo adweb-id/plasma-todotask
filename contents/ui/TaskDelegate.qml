@@ -160,6 +160,35 @@ Item {
                 Accessible.name: i18n("Complete %1", row.taskText)
             }
 
+            // Rows without a check box get a marker in the same column, so a
+            // long text wraps under itself and never looks like a second task.
+            Item {
+                Layout.alignment: Qt.AlignTop
+                Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
+                visible: !row.isToday
+                implicitWidth: row.checkSize
+                implicitHeight: row.checkSize
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    visible: !row.isTemplate
+                    width: Math.round(row.checkSize * 0.32)
+                    height: width
+                    radius: width / 2
+                    color: Kirigami.Theme.textColor
+                    opacity: row.waiting ? 0.25 : 0.45
+                }
+
+                Glyph {
+                    anchors.centerIn: parent
+                    visible: row.isTemplate
+                    implicitWidth: Math.round(row.checkSize * 0.8)
+                    implicitHeight: implicitWidth
+                    name: "repeat"
+                    opacity: 0.5
+                }
+            }
+
             Item {
                 Layout.fillWidth: true
                 implicitHeight: taskLabel.implicitHeight
@@ -555,7 +584,7 @@ Item {
 
                 Layout.fillWidth: true
                 Layout.topMargin: 2
-                Layout.leftMargin: row.isToday ? row.checkSize + Kirigami.Units.largeSpacing : Kirigami.Units.largeSpacing
+                Layout.leftMargin: row.checkSize + Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.smallSpacing + 2
 
                 TapHandler {
@@ -626,7 +655,7 @@ Item {
             id: subField
             Layout.fillWidth: true
             Layout.topMargin: Kirigami.Units.smallSpacing
-            Layout.leftMargin: row.isToday ? row.checkSize + Kirigami.Units.largeSpacing : Kirigami.Units.largeSpacing
+            Layout.leftMargin: row.checkSize + Kirigami.Units.largeSpacing
             visible: row.addingSub
             placeholderText: i18n("Add subtask, press Enter")
             onAccepted: {
