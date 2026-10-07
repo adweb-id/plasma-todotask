@@ -39,18 +39,6 @@ PlasmaExtras.Representation {
         interactive: false
         boundsBehavior: Flickable.StopAtBounds
 
-        // The Queue shows its groups as sections ("### SRSX" in the file)
-        section.property: listName === "queue" ? "group" : ""
-        section.criteria: ViewSection.FullString
-        section.delegate: listName === "queue" ? groupHeading : null
-
-        Component {
-            id: groupHeading
-            GroupHeading {
-                widget: list.widget
-            }
-        }
-
         delegate: TaskDelegate {
             widget: list.widget
             listName: list.listName
@@ -326,6 +314,12 @@ PlasmaExtras.Representation {
                 font: Kirigami.Theme.smallFont
                 opacity: 0.6
                 elide: Text.ElideMiddle
+            }
+
+            IconButton {
+                iconName: "retry"
+                tip: i18n("Reload todo.md, e.g. after editing it elsewhere")
+                onClicked: full.widget.load(true)
             }
 
             IconButton {

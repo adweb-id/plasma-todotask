@@ -192,7 +192,7 @@ Plain Markdown, readable and editable in any editor:
 - Nothing is lost or moved away from its task: deeper indented lines, paragraphs and code blocks are kept as notes of the task or subtask above them, exactly where they were. Code blocks are never read as tasks.
 - A bullet without a box (`- text`) counts as a task and is written back as `- [ ] text`.
 - Any other `#`/`##` section is kept whole (it moves below Done) and never read as tasks.
-- Edits made in another editor are picked up when the popup opens.
+- Edits made in another editor are picked up when the popup opens, or at once with the ⟳ button in the footer.
 
 Finished days older than *Archive after* move to a monthly file next to it,
 for example `todo-archive-2026-10.md`. A day is removed from `todo.md` only

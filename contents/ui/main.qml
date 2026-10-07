@@ -130,7 +130,8 @@ PlasmoidItem {
 
     // ---- file ----------------------------------------------------------
 
-    function load() {
+    // announce: say in the toast that the file was read again (Reload button)
+    function load(announce) {
         if (filePath === "" || writing) {
             return;
         }
@@ -153,6 +154,12 @@ PlasmoidItem {
                 save();
             }
             archiveOld();
+            if (announce === true) {
+                undoSnapshot = "";
+                noticeList = "";
+                noticeText = i18n("Reloaded from %1", filePath.split("/").pop());
+                undoTimer.restart();
+            }
         });
     }
 
@@ -310,6 +317,12 @@ PlasmoidItem {
                     break;
                 }
             }
+            if (at !== -1 && row.group !== undefined && model.get(at).group !== row.group) {
+                // Changed group: take the row out and put it back, so the list
+                // redraws the group headings around it
+                model.remove(at);
+                at = -1;
+            }
             if (at === -1) {
                 model.insert(i, row);
             } else {
@@ -437,13 +450,10 @@ PlasmoidItem {
                group ? i18n("Moved to %1: %2", group, name) : i18n("Removed from group: %1", name), "queue");
     }
 
+    // The renamed group opens, so its tasks are in view right away
     function renameGroup(from, to) {
-        const folded = groupFolded(from);
         change(d => Tasks.renameGroup(d, from, to));
-        if (folded) {
-            foldGroup(from, false);
-            foldGroup(to.trim(), true);
-        }
+        setFolded(foldedGroups.filter(n => n !== from && n !== to.trim()));
     }
 
     function removeGroup(name) {
@@ -473,7 +483,13 @@ PlasmoidItem {
         if (folded) {
             list.push(name);
         }
-        Plasmoid.configuration.foldedGroups = JSON.stringify(list);
+        setFolded(list);
+    }
+
+    // One write per change, and only names of groups that still exist
+    function setFolded(list) {
+        const names = doc ? doc.groups : groupNames;
+        Plasmoid.configuration.foldedGroups = JSON.stringify(list.filter(n => names.indexOf(n) !== -1));
     }
 
     function setWaiting(listName, index, on) {

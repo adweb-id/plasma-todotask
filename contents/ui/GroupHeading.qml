@@ -4,14 +4,14 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents3
 
-// Heading of a Queue group ("### SRSX" in the file), used as the Queue list's
-// section delegate. Click folds the group; ＋ adds a task to it; ⋯ or a
+// Heading of a Queue group ("### SRSX" in the file), shown above the first
+// task of the group. Click folds the group; ＋ adds a task to it; ⋯ or a
 // right-click opens rename / move / remove.
 Item {
     id: heading
 
-    required property string section
-    required property var widget
+    property string section
+    property var widget
 
     readonly property bool folded: widget.foldedGroups.indexOf(section) !== -1
     readonly property int position: widget.groupNames.indexOf(section)
@@ -20,6 +20,10 @@ Item {
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a);
     }
+
+    // Starts once the menu has fully closed: closing hands the focus back to
+    // where it was, which would otherwise end the rename before anything is typed.
+    property bool renameRequested: false
 
     function startRename() {
         renaming = true;
@@ -35,7 +39,7 @@ Item {
         }
     }
 
-    width: ListView.view ? ListView.view.width : implicitWidth
+    width: parent ? parent.width : implicitWidth
     // Tasks without a group form a section too; it has no heading
     implicitHeight: section === "" ? 0 : line.implicitHeight + Kirigami.Units.smallSpacing * 2
     visible: section !== ""
@@ -83,7 +87,7 @@ Item {
             text: heading.section
             font.weight: Font.DemiBold
             elide: Text.ElideRight
-            Layout.maximumWidth: line.width - Kirigami.Units.gridUnit * 6
+            Layout.maximumWidth: line.width - Kirigami.Units.gridUnit * 7
         }
 
         PlasmaComponents3.TextField {
@@ -122,27 +126,35 @@ Item {
             visible: !heading.renaming
         }
 
-        RowLayout {
-            spacing: 0
-            opacity: (hover.hovered || groupMenu.opened) && !heading.renaming ? 1 : 0
-            visible: opacity > 0
+    }
 
-            Behavior on opacity {
-                NumberAnimation { duration: Kirigami.Units.shortDuration }
-            }
+    // Hover tools float at the right edge, outside the layout, so showing them
+    // never changes the height of the heading.
+    RowLayout {
+        anchors.right: parent.right
+        anchors.rightMargin: Kirigami.Units.smallSpacing * 2
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 0
+        opacity: (hover.hovered || groupMenu.opened) && !heading.renaming ? 1 : 0
+        visible: opacity > 0
 
-            IconButton {
-                iconName: "plus"
-                tip: i18n("Add a task to %1", heading.section)
-                onClicked: heading.widget.startAddToGroup(heading.section)
-            }
+        Behavior on opacity {
+            NumberAnimation { duration: Kirigami.Units.shortDuration }
+        }
 
-            IconButton {
-                id: moreButton
-                iconName: "more"
-                tip: i18n("More")
-                onClicked: groupMenu.openAt(heading, moreButton.mapToItem(heading, moreButton.width, moreButton.height))
-            }
+        IconButton {
+            implicitHeight: Math.round(Kirigami.Units.gridUnit * 1.3)
+            iconName: "plus"
+            tip: i18n("Add a task to %1", heading.section)
+            onClicked: heading.widget.startAddToGroup(heading.section)
+        }
+
+        IconButton {
+            id: moreButton
+            implicitHeight: Math.round(Kirigami.Units.gridUnit * 1.3)
+            iconName: "more"
+            tip: i18n("More")
+            onClicked: groupMenu.openAt(heading, moreButton.mapToItem(heading, moreButton.width, moreButton.height))
         }
     }
 
@@ -162,6 +174,13 @@ Item {
     ContextMenu {
         id: groupMenu
 
+        onClosed: {
+            if (heading.renameRequested) {
+                heading.renameRequested = false;
+                heading.startRename();
+            }
+        }
+
         MenuEntry {
             iconName: "plus"
             text: i18n("Add task here")
@@ -170,7 +189,7 @@ Item {
         MenuEntry {
             iconName: "edit"
             text: i18n("Rename")
-            onClicked: heading.startRename()
+            onClicked: heading.renameRequested = true
         }
         MenuLine {}
         MenuEntry {
