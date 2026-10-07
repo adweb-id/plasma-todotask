@@ -43,8 +43,9 @@ Screenshots use demo data; see *Development* to regenerate them.
 
 ## Install
 
-**From the KDE Store**: right-click the panel, choose *Add Widgets…*, then
-*Get New Widgets…* → *Download New Plasma Widgets*, and search for "Todo Task".
+**From the KDE Store** ([store page](https://www.opendesktop.org/p/2377548/)):
+right-click the panel, choose *Add Widgets…*, then *Get New Widgets…* →
+*Download New Plasma Widgets*, and search for "Todo Task".
 
 **From a release file**: download `todotask-<version>.plasmoid`, then
 
@@ -259,6 +260,7 @@ Right-click the widget → *Configure Todo Task…*
     store-icon.svg                        colour logo for the store listing (not part of the package)
     tools/screenshots/                    screenshot script, scenario driver and demo data
     docs/screenshots/                     screenshots for this README and the KDE Store
+    docs/store/                           KDE Store listing text (listing.md) and logos
 
 `store.js` and `tasks.js` have no QML dependencies, so they can be tested with plain Node.js.
 
