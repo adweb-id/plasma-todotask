@@ -336,11 +336,18 @@ Item {
                                         return;
                                     }
                                     row.dragging = true;
-                                    const p = mapToItem(row.listView.contentItem, mouse.x, mouse.y);
-                                    const to = row.listView.indexAt(row.listView.width / 2, p.y);
-                                    // Within its own group only; ↑ ↓ and the menu move it elsewhere
-                                    if (to >= 0 && to !== row.index && row.listView.model.get(to).group === row.group) {
-                                        row.listView.model.move(row.index, to, 1);
+                                    const list = row.listView;
+                                    const p = mapToItem(list.contentItem, mouse.x, mouse.y);
+                                    let to = list.indexAt(list.width / 2, p.y);
+                                    // Above the first row or below the last one: the ends of the list
+                                    if (to < 0) {
+                                        to = p.y < 0 ? 0 : list.count - 1;
+                                    }
+                                    // In the Queue a task stays in its group (↑ ↓ and the menu move
+                                    // it elsewhere); in Today the group is only a label
+                                    const sameGroup = row.listName !== "queue" || list.model.get(to).group === row.group;
+                                    if (to !== row.index && sameGroup) {
+                                        list.model.move(row.index, to, 1);
                                     }
                                 }
                                 onReleased: {

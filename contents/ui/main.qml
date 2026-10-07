@@ -558,6 +558,10 @@ PlasmoidItem {
         }
         if (ordered.length === doc[listName].length) {
             doc[listName] = ordered;
+            // Same rules as every other change (waiting tasks stay last), so
+            // the list shows the order that is saved
+            Tasks.tidy(doc);
+            refresh();
             save();
         } else {
             refresh();
