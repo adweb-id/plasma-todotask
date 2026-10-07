@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <entry name="newTaskTarget" type="String">
+      <default>queue</default>
+    </entry>
+    <entry name="popupWidth" type="Int">
+      <default>380</default>
+      <min>300</min>
+      <max>800</max>
+    </entry>
+    <entry name="carryOver" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="queueCollapsed" type="Bool">
+      <default>false</default>
+    </entry>
+    <!-- Days the Daily tasks are copied to Today, as Date.getDay() numbers (0 = Sunday) -->
+    <entry name="dailyDays" type="String">
+      <default>1,2,3,4,5</default>
+    </entry>
+    <entry name="dailyCollapsed" type="Bool">
+      <default>true</default>
+    </entry>
+    <!-- Queue groups folded away in the popup, as a JSON list of names -->
+    <entry name="foldedGroups" type="String">
+      <default>[]</default>
+    </entry>
+    <entry name="archiveDays" type="Int">
+      <default>7</default>
+      <min>0</min>
+      <max>365</max>
+    </entry>
+  </group>
+</kcfg>

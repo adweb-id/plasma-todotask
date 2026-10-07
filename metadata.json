@@ -1,0 +1,24 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "ADWeb",
+                "Email": "hello@addin.web.id"
+            }
+        ],
+        "BugReportUrl": "https://github.com/adweb-id/plasma-todotask/issues",
+        "Category": "Utilities",
+        "Copyright": "© 2026 ADWeb",
+        "Description": "Today's tasks and a queue in your panel, carried over automatically and stored as a Markdown file",
+        "Icon": "view-task",
+        "Id": "com.adweb.todotask",
+        "License": "GPL-3.0-or-later",
+        "Name": "Todo Task",
+        "Version": "0.1.0",
+        "Website": "https://github.com/adweb-id/plasma-todotask"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "ApplicationStatus"
+}
