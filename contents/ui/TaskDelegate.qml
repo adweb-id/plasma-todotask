@@ -55,6 +55,19 @@ Item {
         return Qt.rgba(c.r, c.g, c.b, a);
     }
 
+    // The theme's small font with some changes. Its size is copied as points
+    // or pixels, whichever the theme uses (the other one is -1).
+    function smallFont(changes) {
+        const f = Kirigami.Theme.smallFont;
+        const spec = Object.assign({ family: f.family }, changes);
+        if (f.pointSize > 0) {
+            spec.pointSize = f.pointSize;
+        } else {
+            spec.pixelSize = f.pixelSize;
+        }
+        return Qt.font(spec);
+    }
+
     function startEdit() {
         editing = true;
         editField.text = taskText;
@@ -642,24 +655,42 @@ Item {
                         }
                     }
 
+                    // Subtasks are ticked in Today only; elsewhere a short dash
+                    // marks them, one level below the task's dot
                     TaskCheck {
                         Layout.alignment: Qt.AlignTop
                         Layout.topMargin: 1
                         implicitWidth: Math.round(row.checkSize * 0.85)
-                        visible: !row.isTemplate
+                        visible: row.isToday
                         on: subRow.modelData.done
                         onClicked: row.widget.toggleSub(row.listName, row.index, subRow.index)
                         Accessible.name: i18n("Complete %1", subRow.modelData.text)
                     }
 
+                    Item {
+                        Layout.alignment: Qt.AlignTop
+                        visible: !row.isToday
+                        implicitWidth: Math.round(row.checkSize * 0.85)
+                        implicitHeight: subLabel.implicitHeight > 0 ? Math.min(subLabel.implicitHeight, implicitWidth * 1.4) : implicitWidth
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: Math.round(parent.implicitWidth * 0.45)
+                            height: 1.5
+                            radius: 1
+                            color: Kirigami.Theme.textColor
+                            opacity: 0.45
+                        }
+                    }
+
                     PlasmaComponents3.Label {
+                        id: subLabel
                         Layout.fillWidth: true
                         visible: row.editingSub !== subRow.index
                         text: Tasks.styled(subRow.modelData.text)
                         textFormat: Text.StyledText
                         wrapMode: Text.Wrap
-                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                        font.strikeout: subRow.modelData.done
+                        font: row.smallFont({ strikeout: subRow.modelData.done })
                         opacity: subRow.modelData.done ? 0.55 : 0.9
 
                         TapHandler {

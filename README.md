@@ -6,7 +6,7 @@ everything is stored in one plain Markdown file you can also edit by hand.
 
 - Pure QML + JavaScript, nothing to compile
 - Follows your Plasma theme (light and dark, Wayland and X11)
-- No account, no server: one `todo.md` in your Documents folder
+- No account, no server: one `todo.md` in your Documents folder, or any file you choose (e.g. in a synced folder)
 
 ## Features
 
@@ -24,6 +24,17 @@ everything is stored in one plain Markdown file you can also edit by hand.
 - **Undo** for 5 seconds after ticking or deleting.
 - **Daily archive**: finished tasks are kept per date, and days older than a week move to a monthly archive file.
 - **"All done for today"** with a button that pulls the next task from the queue.
+
+## Screenshots
+
+| | | |
+| --- | --- | --- |
+| ![Today and the Queue](docs/screenshots/overview.png) | ![Right-click menu](docs/screenshots/menu.png) | ![Project groups and Daily](docs/screenshots/groups.png) |
+| Today with subtasks, carried-over and Daily tasks; the Queue in project groups | Right-click menu of a task | Groups folded, adding straight to the API group, the Daily list |
+| ![Undo after adding](docs/screenshots/toast.png) | ![Light theme](docs/screenshots/overview-light.png) | ![About](docs/screenshots/about.png) |
+| Every change can be undone for 5 seconds | Follows the Plasma theme, light or dark | About Todo Task |
+
+Screenshots use demo data; see *Development* to regenerate them.
 
 ## Requirements
 
@@ -204,6 +215,7 @@ Right-click the widget → *Configure Todo Task…*
 
 | Setting | Default | Notes |
 | --- | --- | --- |
+| Task file | `todo.md` in Documents | Browse… for an existing file or type a new name (`~/` works). Archive files go next to it; the old file is left as it is. Reset goes back to the default. |
 | Enter adds a task to | Queue | Shift+Enter always adds to the other list |
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
@@ -245,8 +257,22 @@ Right-click the widget → *Configure Todo Task…*
     contents/icons/todotask-symbolic.svg  panel icon (one colour, follows the theme)
     contents/icons/todotask-logo.svg      colour logo for the About page
     store-icon.svg                        colour logo for the store listing (not part of the package)
+    tools/screenshots/                    screenshot script, scenario driver and demo data
+    docs/screenshots/                     screenshots for this README and the KDE Store
 
 `store.js` and `tasks.js` have no QML dependencies, so they can be tested with plain Node.js.
+
+### Screenshots
+
+    sh tools/screenshots/take.sh             # all of them
+    sh tools/screenshots/take.sh menu        # one scenario
+
+The script installs a temporary copy of the widget and runs it inside a virtual
+KWin (its own Wayland display and D-Bus session) with a separate config folder
+and the demo file `tools/screenshots/demo-todo.md`. Nothing appears on your
+screen, your own `todo.md` and settings are not touched, and no screen capture
+is taken: the widget renders itself to a PNG, which `frame.py` lays on the
+Breeze popup background. Needs KWin and Python with Pillow.
 
 Build a release file:
 

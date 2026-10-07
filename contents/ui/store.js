@@ -387,9 +387,39 @@ function base64(text) {
     return out;
 }
 
-// Prints the user's Documents folder, falling back to the home folder.
+// Prints the home folder, a newline, and the Documents folder (the home
+// folder if there is none).
 function folderCommand() {
-    return "d=$(xdg-user-dir DOCUMENTS 2>/dev/null); [ -n \"$d\" ] && [ -d \"$d\" ] || d=\"$HOME\"; printf %s \"$d\"";
+    return "d=$(xdg-user-dir DOCUMENTS 2>/dev/null); [ -n \"$d\" ] && [ -d \"$d\" ] || d=\"$HOME\"; printf '%s\\n%s' \"$HOME\" \"$d\"";
+}
+
+// The task file from the setting: empty = todo.md in Documents; "~/" is the
+// home folder; a file:// URL (from a file dialog) becomes a path; a path that
+// is not absolute is taken inside Documents.
+function resolvePath(setting, home, documents) {
+    var path = String(setting || "").trim();
+    if (path === "") {
+        return documents + "/todo.md";
+    }
+    if (path.indexOf("file://") === 0) {
+        path = decodeURIComponent(path.slice(7));
+    }
+    if (path === "~" || path.indexOf("~/") === 0) {
+        path = home + path.slice(1);
+    } else if (path.charAt(0) !== "/") {
+        path = documents + "/" + path;
+    }
+    return path.replace(/\/{2,}/g, "/");
+}
+
+// The path as shown to people: the home folder as "~"
+function displayPath(path, home) {
+    return home && path.indexOf(home + "/") === 0 ? "~" + path.slice(home.length) : path;
+}
+
+function folderOf(path) {
+    var at = path.lastIndexOf("/");
+    return at > 0 ? path.slice(0, at) : "/";
 }
 
 function readCommand(path) {
@@ -420,6 +450,8 @@ function writeCommands(path, text, append, header) {
     } else {
         finish = "base64 -d < " + b64 + " > " + tmp + " && mv " + tmp + " " + target;
     }
+    // The first piece goes to a file next to the target, so its folder must exist
+    commands[0] = "mkdir -p " + quote(folderOf(path)) + " && " + commands[0];
     commands[commands.length - 1] += " && " + finish + " && rm -f " + b64;
     return commands;
 }

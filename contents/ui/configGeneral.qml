@@ -2,9 +2,11 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import QtQuick.Dialogs as Dialogs
 import org.kde.kcmutils as KCM
 
 KCM.SimpleKCM {
+    property alias cfg_filePath: fileField.text
     property string cfg_newTaskTarget
     property alias cfg_popupWidth: widthSpin.value
     property alias cfg_carryOver: carryCheck.checked
@@ -12,6 +14,58 @@ KCM.SimpleKCM {
     property string cfg_dailyDays
 
     Kirigami.FormLayout {
+        // Where the tasks are kept; empty = todo.md in Documents
+        RowLayout {
+            Kirigami.FormData.label: i18n("Task file:")
+            Layout.fillWidth: true
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.TextField {
+                id: fileField
+                Layout.fillWidth: true
+                Layout.minimumWidth: Kirigami.Units.gridUnit * 14
+                placeholderText: i18n("~/Documents/todo.md")
+            }
+
+            QQC2.Button {
+                icon.name: "document-open"
+                text: i18n("Browse…")
+                onClicked: fileDialog.open()
+            }
+
+            QQC2.Button {
+                icon.name: "edit-undo"
+                text: i18n("Reset")
+                enabled: fileField.text !== ""
+                onClicked: fileField.text = ""
+                QQC2.ToolTip.text: i18n("Back to todo.md in your Documents folder")
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+            }
+        }
+
+        QQC2.Label {
+            text: i18n("Pick an existing Markdown file or type a new name; it is created when needed. Archive files go next to it. The old file is left as it is.")
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            wrapMode: Text.Wrap
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+        }
+
+        Dialogs.FileDialog {
+            id: fileDialog
+            title: i18n("Choose the task file")
+            fileMode: Dialogs.FileDialog.SaveFile
+            options: Dialogs.FileDialog.DontConfirmOverwrite
+            nameFilters: [i18n("Markdown files (*.md)"), i18n("All files (*)")]
+            defaultSuffix: "md"
+            onAccepted: fileField.text = decodeURIComponent(selectedFile.toString().replace(/^file:\/\//, ""))
+        }
+
+        Item {
+            Kirigami.FormData.isSection: true
+        }
+
         QQC2.ComboBox {
             id: targetCombo
             Kirigami.FormData.label: i18n("Enter adds a task to:")

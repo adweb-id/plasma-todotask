@@ -21,6 +21,19 @@ PlasmaExtras.Representation {
         return Qt.rgba(c.r, c.g, c.b, a);
     }
 
+    // The theme's small font with some changes. Its size is copied as points
+    // or pixels, whichever the theme uses (the other one is -1).
+    function smallFont(changes) {
+        const f = Kirigami.Theme.smallFont;
+        const spec = Object.assign({ family: f.family }, changes);
+        if (f.pointSize > 0) {
+            spec.pointSize = f.pointSize;
+        } else {
+            spec.pixelSize = f.pixelSize;
+        }
+        return Qt.font(spec);
+    }
+
     Layout.minimumWidth: Kirigami.Units.gridUnit * 14
     Layout.minimumHeight: Kirigami.Units.gridUnit * 14
     Layout.preferredWidth: widget.popupWidth
@@ -132,10 +145,7 @@ PlasmaExtras.Representation {
 
             PlasmaComponents3.Label {
                 text: heading.title
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
-                font.weight: Font.DemiBold
-                font.capitalization: Font.AllUppercase
-                font.letterSpacing: 0.6
+                font: full.smallFont({ weight: Font.DemiBold, capitalization: Font.AllUppercase, letterSpacing: 0.6 })
             }
 
             Rectangle {
@@ -310,7 +320,7 @@ PlasmaExtras.Representation {
             PlasmaComponents3.Label {
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
-                text: full.widget.filePath
+                text: full.widget.displayPath
                 font: Kirigami.Theme.smallFont
                 opacity: 0.6
                 elide: Text.ElideMiddle
@@ -595,7 +605,7 @@ PlasmaExtras.Representation {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.Wrap
             opacity: 0.7
-            text: full.widget.errorText + "\n" + full.widget.filePath
+            text: full.widget.errorText + "\n" + full.widget.displayPath
         }
 
         IconButton {

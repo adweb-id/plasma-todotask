@@ -12,6 +12,10 @@ PlasmoidItem {
     // The whole todo.md as an object (see store.js). Changed only through change().
     property var doc: null
     property string filePath: ""
+    // From the shell at start: the home and Documents folders
+    property string homeFolder: ""
+    property string documentsFolder: ""
+    readonly property string displayPath: Store.displayPath(filePath, homeFolder)
     property bool loaded: false
     property string errorText: ""
 
@@ -68,14 +72,17 @@ PlasmoidItem {
     toolTipSubText: errorText !== "" ? errorText
                                       : i18n("%1 left today, %2 in queue", todayCount, queueCount)
 
+    // Plasma's own menu: theme icons, like its other entries
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
             text: i18n("Open todo.md")
+            icon.name: "document-open"
             enabled: root.filePath !== ""
             onTriggered: root.openFile()
         },
         PlasmaCore.Action {
             text: i18n("About Todo Task")
+            icon.name: "help-about"
             onTriggered: {
                 root.showAbout = true;
                 root.expanded = true;
@@ -178,6 +185,10 @@ PlasmoidItem {
             if (writeQueued) {
                 writeQueued = false;
                 save();
+            }
+            // A switch to another file waited for this write to end
+            if (!doc && !loaded) {
+                load();
             }
         });
     }
@@ -557,9 +568,39 @@ PlasmoidItem {
 
     Component.onCompleted: {
         exec(Store.folderCommand(), (stdout) => {
-            filePath = stdout.trim() + "/todo.md";
+            const lines = stdout.split("\n");
+            homeFolder = lines[0].trim();
+            documentsFolder = (lines[1] || lines[0]).trim();
+            filePath = Store.resolvePath(Plasmoid.configuration.filePath, homeFolder, documentsFolder);
             load();
         });
+    }
+
+    // Another task file was chosen in the settings: drop everything that
+    // belongs to the old one first, so none of it can be written to the new one.
+    Connections {
+        target: Plasmoid.configuration
+        function onFilePathChanged() {
+            if (root.documentsFolder === "") {
+                return;
+            }
+            const path = Store.resolvePath(Plasmoid.configuration.filePath, root.homeFolder, root.documentsFolder);
+            if (path === root.filePath) {
+                return;
+            }
+            root.doc = null;
+            root.loaded = false;
+            root.errorText = "";
+            root.undoSnapshot = "";
+            root.noticeText = "";
+            root.addGroup = "";
+            root.writeQueued = false;
+            [todayModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
+            root.todayCount = root.todayTotal = root.todayWaiting = 0;
+            root.queueCount = root.queueTotal = root.dailyCount = root.doneCount = 0;
+            root.filePath = path;
+            root.load();
+        }
     }
 
     // Picks up edits made in another editor

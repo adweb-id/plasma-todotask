@@ -5,6 +5,10 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
   <kcfgfile name=""/>
   <group name="General">
+    <!-- The task file; empty means todo.md in the Documents folder -->
+    <entry name="filePath" type="String">
+      <default></default>
+    </entry>
     <entry name="newTaskTarget" type="String">
       <default>queue</default>
     </entry>
