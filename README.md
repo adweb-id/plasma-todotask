@@ -4,6 +4,11 @@ A KDE Plasma 6 widget for today's tasks and a queue of what comes next, right in
 the panel. Unfinished tasks carry over to the next day by themselves, and
 everything is stored in one plain Markdown file you can also edit by hand.
 
+**Get it from the [KDE Store](https://www.opendesktop.org/p/2377548/)**, or download
+the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-todotask/releases/latest).
+
+![Todo Task](docs/screenshots/overview.png)
+
 - Pure QML + JavaScript, nothing to compile
 - Follows your Plasma theme (light and dark, Wayland and X11)
 - No account, no server: one `todo.md` in your Documents folder, or any file you choose (e.g. in a synced folder)
