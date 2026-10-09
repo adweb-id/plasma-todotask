@@ -538,6 +538,16 @@ PlasmoidItem {
         change(d => Tasks.editSub(d, listName, index, subIndex, text));
     }
 
+    function promoteSub(listName, index, subIndex) {
+        const sub = doc[listName][index] ? doc[listName][index].subs[subIndex] : null;
+        change(d => Tasks.promoteSub(d, listName, index, subIndex, today()),
+               i18n("Made a task: %1", sub ? sub.text : ""));
+    }
+
+    function moveSub(listName, index, subIndex, delta) {
+        change(d => Tasks.moveSub(d, listName, index, subIndex, delta));
+    }
+
     function removeSub(listName, index, subIndex) {
         const sub = doc[listName][index] ? doc[listName][index].subs[subIndex] : null;
         change(d => Tasks.removeSub(d, listName, index, subIndex),

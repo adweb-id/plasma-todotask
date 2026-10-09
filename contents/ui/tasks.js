@@ -85,8 +85,14 @@ function normalize(doc, today, carryOver, dailyDays) {
     return changed;
 }
 
+// A task line holds one line of text: pasted line breaks become spaces,
+// otherwise the rest would land in the file as lines under the task.
+function oneLine(text) {
+    return String(text || "").replace(/\s*[\r\n]+\s*/g, " ").trim();
+}
+
 function add(doc, listName, text, today, group) {
-    text = (text || "").trim();
+    text = oneLine(text);
     if (!text) {
         return false;
     }
@@ -124,7 +130,7 @@ function setGroup(doc, listName, index, group) {
     if (!task) {
         return;
     }
-    group = (group || "").trim();
+    group = oneLine(group);
     if (group && doc.groups.indexOf(group) === -1) {
         doc.groups.push(group);
         doc.groupHead[group] = [];
@@ -144,7 +150,7 @@ function eachTask(doc, fn) {
 
 // Renaming onto an existing group merges the two
 function renameGroup(doc, from, to) {
-    to = (to || "").trim();
+    to = oneLine(to);
     var at = doc.groups.indexOf(from);
     if (!to || at === -1 || to === from) {
         return;
@@ -324,14 +330,14 @@ function remove(doc, listName, index) {
 }
 
 function edit(doc, listName, index, text) {
-    text = (text || "").trim();
+    text = oneLine(text);
     if (text && doc[listName][index]) {
         doc[listName][index].text = text;
     }
 }
 
 function addSub(doc, listName, index, text) {
-    text = (text || "").trim();
+    text = oneLine(text);
     if (text && doc[listName][index]) {
         doc[listName][index].subs.push({ text: text, done: false });
     }
@@ -345,7 +351,7 @@ function toggleSub(doc, listName, index, subIndex) {
 }
 
 function editSub(doc, listName, index, subIndex, text) {
-    text = (text || "").trim();
+    text = oneLine(text);
     var sub = doc[listName][index] && doc[listName][index].subs[subIndex];
     if (text && sub) {
         sub.text = text;
@@ -356,6 +362,38 @@ function removeSub(doc, listName, index, subIndex) {
     if (doc[listName][index]) {
         doc[listName][index].subs.splice(subIndex, 1);
     }
+}
+
+// A subtask becomes a task of its own, right below its parent, in the
+// parent's list and group. Its notes go with it.
+function promoteSub(doc, listName, index, subIndex, today) {
+    var parent = doc[listName][index];
+    var sub = parent && parent.subs[subIndex];
+    if (!sub) {
+        return;
+    }
+    parent.subs.splice(subIndex, 1);
+    doc[listName].splice(index + 1, 0, {
+        text: sub.text,
+        done: false,
+        since: listName === "today" ? today : "",
+        daily: false,
+        waiting: false,
+        group: parent.group || "",
+        notes: (sub.notes || []).slice(),
+        subs: []
+    });
+}
+
+// Moves a subtask up (delta -1) or down (+1) within its parent
+function moveSub(doc, listName, index, subIndex, delta) {
+    var parent = doc[listName][index];
+    var to = subIndex + delta;
+    if (!parent || subIndex < 0 || subIndex >= parent.subs.length || to < 0 || to >= parent.subs.length) {
+        return;
+    }
+    var sub = parent.subs.splice(subIndex, 1)[0];
+    parent.subs.splice(to, 0, sub);
 }
 
 function subDone(task) {

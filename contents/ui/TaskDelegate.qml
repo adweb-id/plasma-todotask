@@ -373,6 +373,13 @@ Item {
                                 onClicked: row.widget.moveTask(row.listName, row.index)
                             }
 
+                            // Used often enough to be one click away
+                            IconButton {
+                                iconName: "plus"
+                                tip: i18n("Add subtask")
+                                onClicked: row.startAddSub()
+                            }
+
                             IconButton {
                                 id: moreButton
                                 iconName: "more"
@@ -649,9 +656,28 @@ Item {
                         id: subMenu
 
                         MenuEntry {
+                            iconName: "up"
+                            text: i18n("Move up")
+                            enabled: subRow.index > 0
+                            onClicked: row.widget.moveSub(row.listName, row.index, subRow.index, -1)
+                        }
+                        MenuEntry {
+                            iconName: "down"
+                            text: i18n("Move down")
+                            enabled: subRow.index < row.subs.length - 1
+                            onClicked: row.widget.moveSub(row.listName, row.index, subRow.index, 1)
+                        }
+                        MenuLine {}
+                        MenuEntry {
                             iconName: "edit"
                             text: i18n("Edit")
                             onClicked: subRow.startEdit()
+                        }
+                        // A step that grew into work of its own
+                        MenuEntry {
+                            iconName: "top"
+                            text: i18n("Make it a task")
+                            onClicked: row.widget.promoteSub(row.listName, row.index, subRow.index)
                         }
                         MenuLine {}
                         MenuEntry {

@@ -103,13 +103,14 @@ A small toast floating over the bottom of the list says where the task went, for
 ### The task row
 
 A row shows only the checkbox (Today), the text, the subtask progress and the
-"yesterday" label. Resting the pointer on it shows three buttons over the end of
+"yesterday" label. Resting the pointer on it shows four buttons over the end of
 the text, without moving anything:
 
 | Button | Does |
 | --- | --- |
 | ⋮⋮ | Drag to reorder within the list |
 | ↑ / ↓ | Move to Today / to the Queue |
+| ＋ | Add a subtask |
 | ⋯ | Opens the same menu as a right-click |
 
 Ticking plays a short animation (the box pops, the text is struck through) before
@@ -126,7 +127,7 @@ Double-click the text to edit it: Enter saves, Esc cancels.
 | --- | --- |
 | A task | Move to Today / Queue, Move to top, Move to bottom, Edit, Add subtask, Repeat every work day (or Stop repeating), Delete |
 | A Daily task | Move to top, Move to bottom, Edit, Add subtask, Delete |
-| A subtask | Edit, Delete |
+| A subtask | Move up, Move down (within its task), Edit, Make it a task (a normal task right below, same group), Delete |
 
 *Delete* asks first, under the row: "Delete this task?" with **Delete** and
 **Cancel**; it gives up after 6 seconds. Deleting a task also deletes its subtasks. Ticking a parent finishes all its
@@ -209,6 +210,7 @@ Plain Markdown, readable and editable in any editor:
 - Nothing is lost or moved away from its task: deeper indented lines, paragraphs and code blocks are kept as notes of the task or subtask above them, exactly where they were. Code blocks are never read as tasks.
 - A bullet without a box (`- text`) counts as a task and is written back as `- [ ] text`.
 - Any other `#`/`##` section is kept whole (it moves below Done) and never read as tasks.
+- A task is one line: line breaks in pasted text become spaces.
 - Edits made in another editor are picked up when the popup opens, or at once with the ⟳ button in the footer.
 
 Finished days older than *Archive after* move to a monthly file next to it,
