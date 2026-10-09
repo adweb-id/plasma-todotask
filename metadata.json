@@ -15,7 +15,7 @@
         "Id": "com.adweb.todotask",
         "License": "GPL-3.0-or-later",
         "Name": "Todo Task",
-        "Version": "0.1.0",
+        "Version": "0.1.1",
         "Website": "https://github.com/adweb-id/plasma-todotask"
     },
     "X-Plasma-API-Minimum-Version": "6.0",

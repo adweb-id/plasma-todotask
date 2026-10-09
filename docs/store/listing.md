@@ -71,6 +71,13 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 
+## Changelog for 0.1.1
+
+- Hover a task to add a subtask with one click (＋ next to ↑↓ and ⋯)
+- Subtasks can be moved up and down within their task, or made into a task of their own (right-click)
+- Dragging a task to the bottom of Today works again
+- Text pasted with line breaks stays on one line instead of being cut after the first line
+
 ## Changelog for 0.1.0
 
 First release.
