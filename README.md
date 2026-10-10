@@ -286,6 +286,7 @@ Right-click the widget → *Configure Todo Task…*
     contents/icons/todotask-symbolic.svg  panel icon (one colour, follows the theme)
     contents/icons/todotask-logo.svg      colour logo for the About page
     store-icon.svg                        colour logo for the store listing (not part of the package)
+    ROADMAP.md                            released versions and what is planned
     tools/screenshots/                    screenshot script, scenario driver and demo data
     docs/screenshots/                     screenshots for this README and the KDE Store
     docs/store/                           KDE Store listing text (listing.md) and logos
@@ -313,7 +314,8 @@ Before a release, raise `Version` in `metadata.json`.
 ## Contributing
 
 Bug reports and pull requests are welcome at
-<https://github.com/adweb-id/plasma-todotask/issues>.
+<https://github.com/adweb-id/plasma-todotask/issues>. What is planned next is
+in [ROADMAP.md](ROADMAP.md).
 
 ## License
 
