@@ -10,7 +10,7 @@ Published at https://www.opendesktop.org/p/2377548/
 | --- | --- |
 | Title | Todo Task |
 | Category | Plasma 6 Widgets |
-| License | GPL-3.0-or-later |
+| License | GPLv3 (the store has no "or later" entry; the code itself is GPL-3.0-or-later, see LICENSE) |
 | Source / Homepage | https://github.com/adweb-id/plasma-todotask |
 | Tags | todo, tasks, productivity, markdown, planner, plasma6, widget, plasmoid |
 | Logo | `docs/store/logo-512.png` |
@@ -31,25 +31,38 @@ Today's tasks and a queue in your Plasma panel, carried over by themselves and k
 
 ## Description
 
-Todo Task keeps the day's work in the Plasma panel: what is left for today, and a queue of what comes next. Unfinished tasks carry over to tomorrow by themselves, routine work shows up every work day, and everything lives in one plain Markdown file you can also edit by hand. No account, no server.
+Copy everything inside the block. Every list has an empty line above it; the
+store needs that to show it as bullets instead of one run-on paragraph.
 
-Features
+```text
+Todo Task keeps the day's work in the Plasma panel: what is left for today, and a queue of what comes next.
+
+Unfinished tasks carry over to tomorrow by themselves, routine work shows up every work day, and everything lives in one plain Markdown file you can also edit by hand. No account, no server.
+
+EVERY DAY
+
 - Panel or system tray icon with the number of tasks left today
-- Today and Queue lists; Enter adds to the Queue, Shift+Enter to Today (can be swapped)
-- Tick a task: it pops, is struck through and moves to "Done today"; untick to bring it back
+- Today and Queue lists: Enter adds to the Queue, Shift+Enter to Today (can be swapped)
+- Tick a task: it is struck through and moves to "Done today"; untick to bring it back
 - Unfinished tasks stay in Today on a new day, marked "yesterday"
 - Daily routine: tasks in the Daily list are added to the top of Today every work day
-- Project groups in the Queue: fold them, add straight to a group, rename and reorder
-- Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next" and the counts
-- Subtasks with progress (1/3), **bold** and *italic* text, drag to reorder
-- Right-click menu: move, edit, add subtask, repeat daily, group, waiting, delete with confirmation
-- Undo for 5 seconds after adding, ticking or deleting
-- Progress bar for the day in the header
-- Finished days are kept per date and moved to monthly archive files after a week
-- Choose where the file lives, e.g. a synced folder; reload it with one click
-- Smooth, quiet animations that follow Plasma's animation speed; light and dark themes
 
-The file is ordinary Markdown:
+ORGANISE
+
+- Project groups in the Queue: fold them, add straight to a group, rename and reorder
+- Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
+- Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
+- Drag to reorder, bold and italic text
+- Undo for 5 seconds after adding, ticking or deleting
+
+YOUR FILE
+
+- Ordinary Markdown, stored where you choose, e.g. a synced folder
+- Finished days are kept per date and moved to monthly archive files after a week
+- Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are
+- Reload with one click after editing the file elsewhere
+
+The file looks like this:
 
     ## Today (2026-10-07)
     - [ ] Fix coupon validation <!-- since:2026-10-06 group:"Webshop" -->
@@ -59,17 +72,17 @@ The file is ordinary Markdown:
     ### API
     - [ ] Add rate limiting
 
-Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are.
+REQUIREMENTS
 
-Requirements
 - Plasma 6.0 or newer
 - base64, xdg-open and xdg-user-dir (present on common Linux desktops)
 
-Pure QML and JavaScript: nothing to compile, no background service. Writes go through a temporary file and a rename, so the task file is never half written, and task text never reaches the shell as a command.
+Pure QML and JavaScript: nothing to compile and no background service. Follows your Plasma theme, light or dark, and Plasma's animation speed.
 
 After installing, right-click the panel, choose "Add Widgets…" and drag Todo Task onto the panel, or turn it on in System Tray Settings → Entries.
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
+```
 
 ## Changelog for 0.1.1
 
