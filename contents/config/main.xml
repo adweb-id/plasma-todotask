@@ -5,9 +5,26 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
   <kcfgfile name=""/>
   <group name="General">
-    <!-- The task file; empty means todo.md in the Documents folder -->
+    <!-- The task file or its folder (then the file is todo.md in it).
+         Empty = Documents/todotask/todo.md, or an existing Documents/todo.md.
+         With workspaces set, this is only the fallback for the first row. -->
     <entry name="filePath" type="String">
       <default></default>
+    </entry>
+    <!-- Named task files: a JSON list of {name, path}, path as for filePath.
+         Empty = one unnamed workspace using filePath. Never edited by hand in
+         the settings dialog: with one row the list is stored empty. -->
+    <entry name="workspaces" type="String">
+      <default>[]</default>
+    </entry>
+    <!-- Name of the workspace shown; empty or unknown = the first one -->
+    <entry name="activeWorkspace" type="String">
+      <default></default>
+    </entry>
+    <!-- Per-workspace fold state, JSON: {"<name>": {"groups": [...], "queue": bool, "daily": bool}}.
+         The first workspace keeps using foldedGroups / queueCollapsed / dailyCollapsed. -->
+    <entry name="workspaceFolds" type="String">
+      <default>{}</default>
     </entry>
     <entry name="newTaskTarget" type="String">
       <default>queue</default>

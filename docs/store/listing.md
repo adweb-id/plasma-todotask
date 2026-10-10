@@ -59,7 +59,8 @@ ORGANISE
 
 YOUR FILE
 
-- Ordinary Markdown, stored where you choose, e.g. a synced folder
+- Ordinary Markdown, stored where you choose (a file or a folder), e.g. a synced folder
+- Workspaces: separate lists such as Work and Personal, each in its own file, switched from the popup
 - Finished days are kept per date and moved to monthly archive files after a week
 - Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are
 - Reload with one click after editing the file elsewhere
@@ -86,6 +87,13 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
+
+## Changelog for 0.2.0
+
+- Workspaces: keep separate lists (e.g. Work and Personal), each in its own file; switch from the chip next to "Today" or the widget's right-click menu
+- The task path can be a folder as well as a Markdown file: the file is then todo.md in that folder
+- New installs keep their tasks in Documents/todotask/todo.md; an existing Documents/todo.md stays in use
+- Settings warn when two workspaces point at the same file, and ask before a workspace is removed (its file is always kept)
 
 ## Changelog for 0.1.2
 

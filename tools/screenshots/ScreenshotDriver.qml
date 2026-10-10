@@ -29,7 +29,7 @@ Item {
         }
         full.width = shotWidth;
         full.height = shotHeight;
-        widget.filePath = "~/Documents/todo.md";
+        widget.filePath = "~/Documents/todotask/todo.md";
         grabTimer.start();
     }
 

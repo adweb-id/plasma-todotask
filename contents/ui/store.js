@@ -413,19 +413,23 @@ function base64(text) {
     return out;
 }
 
-// Prints the home folder, a newline, and the Documents folder (the home
-// folder if there is none).
+// Prints the home folder, the Documents folder (the home folder if there is
+// none) and which default applies: an existing Documents/todo.md keeps being
+// used unless Documents/todotask/todo.md is there.
 function folderCommand() {
-    return "d=$(xdg-user-dir DOCUMENTS 2>/dev/null); [ -n \"$d\" ] && [ -d \"$d\" ] || d=\"$HOME\"; printf '%s\\n%s' \"$HOME\" \"$d\"";
+    return "d=$(xdg-user-dir DOCUMENTS 2>/dev/null); [ -n \"$d\" ] && [ -d \"$d\" ] || d=\"$HOME\"; "
+        + "if [ -f \"$d/todo.md\" ] && [ ! -e \"$d/todotask/todo.md\" ]; then def=\"$d/todo.md\"; else def=\"$d/todotask/todo.md\"; fi; "
+        + "printf '%s\\n%s\\n%s' \"$HOME\" \"$d\" \"$def\"";
 }
 
 // The task file from the setting: empty = todo.md in Documents; "~/" is the
 // home folder; a file:// URL (from a file dialog) becomes a path; a path that
 // is not absolute is taken inside Documents.
-function resolvePath(setting, home, documents) {
+// A setting may be a file or a folder; relative paths are inside Documents.
+function resolvePath(setting, home, documents, defaultPath) {
     var path = String(setting || "").trim();
     if (path === "") {
-        return documents + "/todo.md";
+        return defaultPath || (documents + "/todotask/todo.md");
     }
     if (path.indexOf("file://") === 0) {
         path = decodeURIComponent(path.slice(7));
@@ -448,9 +452,17 @@ function folderOf(path) {
     return at > 0 ? path.slice(0, at) : "/";
 }
 
+// Reads the task file. A setting that is a folder means todo.md in it: an
+// existing file is a file and an existing folder a folder; a path that is not
+// there yet is a file when its last part has an extension ("kerja.md"),
+// otherwise a folder ("~/Sync"). The first output line is the file in use.
 function readCommand(path) {
-    var p = quote(path);
-    return "if [ -f " + p + " ]; then cat " + p + "; else printf %s " + MISSING + "; fi";
+    var orig = quote(path);
+    return "p=" + orig + "; case \"$p\" in */) dir=1 ;; *) dir=0 ;; esac; p=\"${p%/}\"; [ -n \"$p\" ] || p=/; "
+        + "if [ -d \"$p\" ]; then p=\"$p/todo.md\"; "
+        + "elif [ ! -e \"$p\" ]; then case \"${p##*/}\" in ?*.*) [ $dir = 1 ] && p=\"$p/todo.md\" ;; *) p=\"$p/todo.md\" ;; esac; fi; "
+        + "p=$(printf '%s' \"$p\" | sed 's|//*|/|g'); printf '%s\\n' \"$p\"; "
+        + "if [ -f \"$p\" ]; then cat \"$p\"; else printf %s " + MISSING + "; fi";
 }
 
 var CHUNK = 60000; // characters of base64 per command, well under the kernel's per-argument limit
@@ -460,6 +472,7 @@ var CHUNK = 60000; // characters of base64 per command, well under the kernel's 
 // lands in a temp file first: todo.md is replaced by a rename, never half written.
 // With `append` the decoded text is added to the end of `path` instead
 // (used for archive files); `header` is written first if that file is new.
+// The file must already be resolved (see readCommand); a folder is not accepted here.
 function writeCommands(path, text, append, header) {
     var encoded = base64(text);
     var b64 = quote(path + ".b64");
@@ -484,7 +497,7 @@ function writeCommands(path, text, append, header) {
 
 // todo.md + "2026-10" -> todo-archive-2026-10.md, next to the main file
 function archivePath(path, month) {
-    return path.replace(/\.md$/i, "") + "-archive-" + month + ".md";
+    return path.replace(/\.[^./]*$/, "") + "-archive-" + month + ".md";
 }
 
 // Text appended to an archive file: one "### date" block per day.

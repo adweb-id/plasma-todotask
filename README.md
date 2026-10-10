@@ -11,7 +11,8 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 
 - Pure QML + JavaScript, nothing to compile
 - Follows your Plasma theme (light and dark, Wayland and X11)
-- No account, no server: one `todo.md` in your Documents folder, or any file you choose (e.g. in a synced folder)
+- No account, no server: one `todo.md` in `Documents/todotask`, or any file or folder you choose (e.g. a synced folder)
+- Workspaces: separate lists (work, personal, …), each in a file of its own
 
 ## Features
 
@@ -87,7 +88,7 @@ After an update, restart Plasma to load the new code:
 Hover the icon for a summary such as "3 left today, 4 in queue".
 Right-click the icon for:
 
-- **Open todo.md**: opens the file in your default editor.
+- **Open todo.md** (the name of your task file): opens the file of the active workspace in your default editor.
 - **About Todo Task**: version, author, license, and buttons for the source code and bug reports.
 
 ### Adding tasks
@@ -188,6 +189,9 @@ Checked when the widget loads and once a minute:
 
 ## The todo.md file
 
+By default the file is `Documents/todotask/todo.md`. If you already used the
+widget before 0.2.0, your `Documents/todo.md` stays in use.
+
 Plain Markdown, readable and editable in any editor:
 
 ```markdown
@@ -223,13 +227,24 @@ Finished days older than *Archive after* move to a monthly file next to it,
 for example `todo-archive-2026-10.md`. A day is removed from `todo.md` only
 after it has been written to the archive, so nothing is ever lost.
 
+## Workspaces
+
+A workspace is a task file with a name, for example *Work* and *Personal*.
+Add them in the settings (*Add workspace*). With two or more, a chip next to
+"Today" shows the active workspace: click it to switch. The right-click menu
+of the widget has *Switch to …* as well.
+
+- Each workspace has its own file, archive files and fold state.
+- The panel badge counts the active workspace only.
+- Removing a workspace from the settings never deletes its file.
+
 ## Settings
 
 Right-click the widget → *Configure Todo Task…*
 
 | Setting | Default | Notes |
 | --- | --- | --- |
-| Task file | `todo.md` in Documents | Browse… for an existing file or type a new name (`~/` works). Archive files go next to it; the old file is left as it is. Reset goes back to the default. |
+| Workspaces | one, in `Documents/todotask/todo.md` | Each row is a name and a path. The path is a Markdown file or a folder (the file is then `todo.md` in it); pick either with the two buttons, or type it (`~/` works). Empty is the default. Files and folders are created when needed. Archive files go next to the task file; the old file is left as it is. |
 | Enter adds a task to | Queue | Shift+Enter always adds to the other list |
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
@@ -248,7 +263,7 @@ Right-click the widget → *Configure Todo Task…*
 
 - **The widget is not in the panel after installing.** Installing only registers it; add it with *Add Widgets…* or in the system tray entries.
 - **Changes do not show after updating.** Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
-- **The badge shows `!`.** Hover it for the error; check that `~/Documents/todo.md` is writable, then use *Try again* in the popup.
+- **The badge shows `!`.** Hover it for the error; check that the file shown in the popup footer is writable, then use *Try again* in the popup.
 
 ## Development
 
