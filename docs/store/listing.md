@@ -52,6 +52,7 @@ ORGANISE
 - Project groups in the Queue: fold them, add straight to a group, rename and reorder
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
+- Copy a task, a subtask or the whole Today list to the clipboard (right-click)
 - Drag to reorder, bold and italic text
 - Undo for 5 seconds after adding, ticking or deleting
 
@@ -61,6 +62,7 @@ YOUR FILE
 - Finished days are kept per date and moved to monthly archive files after a week
 - Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are
 - Reload with one click after editing the file elsewhere
+- Settings for work days, archive age, popup width and which list Enter adds to
 
 The file looks like this:
 
@@ -83,6 +85,12 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
+
+## Changelog for 0.1.2
+
+- Copy text: right-click a task or subtask to copy it to the clipboard; a task with subtasks is copied as a Markdown list
+- Copy all: right-click the Today heading to copy the whole Today list, e.g. for a daily report
+- A short "Copied …" toast confirms it, without getting in the way of a pending Undo
 
 ## Changelog for 0.1.1
 
