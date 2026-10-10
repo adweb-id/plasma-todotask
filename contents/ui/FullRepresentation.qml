@@ -396,7 +396,7 @@ PlasmaExtras.Representation {
 
             IconButton {
                 iconName: "retry"
-                tip: i18n("Reload todo.md, e.g. after editing it elsewhere")
+                tip: i18n("Reload the file, e.g. after editing it elsewhere")
                 onClicked: full.widget.load(true)
             }
 

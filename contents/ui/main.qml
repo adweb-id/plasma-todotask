@@ -116,7 +116,7 @@ PlasmoidItem {
     // Plasma's own menu: theme icons, like its other entries
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
-            text: i18n("Open todo.md")
+            text: root.filePath !== "" ? i18n("Open %1", root.filePath.split("/").pop()) : i18n("Open task file")
             icon.name: "document-open"
             enabled: root.filePath !== ""
             onTriggered: root.openFile()

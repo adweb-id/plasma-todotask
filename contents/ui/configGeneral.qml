@@ -331,7 +331,7 @@ KCM.SimpleKCM {
         }
 
         QQC2.Label {
-            text: i18n("Older finished tasks move to todo-archive-YYYY-MM.md. 0 keeps everything in todo.md.")
+            text: i18n("Older finished tasks move to a monthly archive file next to the task file (todo-archive-YYYY-MM.md). 0 keeps everything in the task file.")
             font: Kirigami.Theme.smallFont
             opacity: 0.7
             wrapMode: Text.Wrap

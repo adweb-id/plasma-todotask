@@ -88,7 +88,7 @@ After an update, restart Plasma to load the new code:
 Hover the icon for a summary such as "3 left today, 4 in queue".
 Right-click the icon for:
 
-- **Open todo.md**: opens the file in your default editor.
+- **Open todo.md** (the name of your task file): opens the file of the active workspace in your default editor.
 - **About Todo Task**: version, author, license, and buttons for the source code and bug reports.
 
 ### Adding tasks
