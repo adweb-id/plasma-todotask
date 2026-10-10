@@ -33,7 +33,7 @@ overview-light|BreezeLight|400|780'
 sandbox() {
     colours=$1
     rm -rf "$WORK/cfg" "$WORK/docs"
-    mkdir -p "$WORK/cfg" "$WORK/docs"
+    mkdir -p "$WORK/cfg" "$WORK/docs/todotask"
     echo "XDG_DOCUMENTS_DIR=\"$WORK/docs\"" > "$WORK/cfg/user-dirs.dirs"
     cp "/usr/share/color-schemes/$colours.colors" "$WORK/cfg/kdeglobals"
     icons=breeze
@@ -41,7 +41,7 @@ sandbox() {
     # KDE's default fonts, so sizes match a stock desktop
     printf '\n[General]\nColorScheme=%s\nfont=Noto Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1\nsmallestReadableFont=Noto Sans,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1\nmenuFont=Noto Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1\ntoolBarFont=Noto Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1\n\n[Icons]\nTheme=%s\n' "$colours" "$icons" >> "$WORK/cfg/kdeglobals"
     printf '[Theme]\nname=default\n' > "$WORK/cfg/plasmarc"
-    sed -e "s/@TODAY@/$TODAY/g" -e "s/@YESTERDAY@/$YESTERDAY/g" "$HERE/demo-todo.md" > "$WORK/docs/todo.md"
+    sed -e "s/@TODAY@/$TODAY/g" -e "s/@YESTERDAY@/$YESTERDAY/g" "$HERE/demo-todo.md" > "$WORK/docs/todotask/todo.md"
 }
 
 shoot() {

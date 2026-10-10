@@ -12,10 +12,44 @@ PlasmoidItem {
     // The whole todo.md as an object (see store.js). Changed only through change().
     property var doc: null
     property string filePath: ""
-    // From the shell at start: the home and Documents folders
+    // From the shell at start: the home and Documents folders, and the default task file
     property string homeFolder: ""
     property string documentsFolder: ""
+    property string defaultPath: ""
+    property bool pathsReady: false
     readonly property string displayPath: Store.displayPath(filePath, homeFolder)
+
+    // Workspaces from the settings; without any there is one unnamed workspace on filePath
+    readonly property var workspaceList: {
+        try {
+            const list = JSON.parse(Plasmoid.configuration.workspaces || "[]");
+            return Array.isArray(list) ? list.filter(w => w && w.name) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    // What is offered: [{ name, path }] with the path to open (a file or a folder)
+    readonly property var workspaces: workspaceList.length > 0
+        ? workspaceList.map(w => ({ name: w.name, path: Store.resolvePath(w.path, homeFolder, documentsFolder, defaultPath) }))
+        : [{ name: "", path: Store.resolvePath(Plasmoid.configuration.filePath, homeFolder, documentsFolder, defaultPath) }]
+    readonly property int activeIndex: Math.max(0, workspaces.findIndex(w => w.name === Plasmoid.configuration.activeWorkspace))
+    readonly property string activeName: workspaces[activeIndex].name
+    // The configured path of the active workspace; load() turns a folder into the file inside it
+    readonly property string targetPath: pathsReady ? workspaces[activeIndex].path : ""
+    property string openedTarget: ""
+    onTargetPathChanged: openTarget()
+
+    // Fold state: the first workspace uses the plain settings, the others their own entry
+    readonly property var workspaceFolds: {
+        try {
+            return JSON.parse(Plasmoid.configuration.workspaceFolds || "{}") || {};
+        } catch (e) {
+            return {};
+        }
+    }
+    readonly property var ownFolds: activeIndex === 0 ? null : (workspaceFolds[activeName] || {})
+    readonly property bool queueCollapsed: ownFolds ? ownFolds.queue === true : Plasmoid.configuration.queueCollapsed
+    readonly property bool dailyCollapsed: ownFolds ? ownFolds.daily !== false : Plasmoid.configuration.dailyCollapsed
     property bool loaded: false
     property string errorText: ""
 
@@ -31,6 +65,9 @@ PlasmoidItem {
     property var groupNames: []
     property var groupCounts: ({})
     readonly property var foldedGroups: {
+        if (ownFolds) {
+            return ownFolds.groups || [];
+        }
         try {
             return JSON.parse(Plasmoid.configuration.foldedGroups || "[]");
         } catch (e) {
@@ -146,13 +183,22 @@ PlasmoidItem {
         if (filePath === "" || writing) {
             return;
         }
-        exec(Store.readCommand(filePath), (stdout, stderr, exitCode) => {
-            if (exitCode !== 0) {
+        const asked = filePath;
+        exec(Store.readCommand(asked), (output, stderr, exitCode) => {
+            if (filePath !== asked) {
+                // Another workspace was opened while this one was being read
+                return;
+            }
+            const cut = output.indexOf("\n");
+            if (exitCode !== 0 || cut === -1) {
                 // Never continue with an empty list here: the next save would wipe the file.
                 errorText = stderr.trim() || i18n("Could not read %1", filePath);
                 return;
             }
             errorText = "";
+            // The first line is the file in use: a folder setting becomes todo.md in it
+            filePath = output.slice(0, cut);
+            const stdout = output.slice(cut + 1);
             const missing = stdout === Store.MISSING;
             const fresh = missing ? Store.emptyDoc(today()) : Store.parse(stdout, today());
             adoptUids(doc, fresh);
@@ -526,8 +572,8 @@ PlasmoidItem {
     function startAddToGroup(name) {
         addGroup = name;
         foldGroup(name, false);
-        if (Plasmoid.configuration.queueCollapsed) {
-            Plasmoid.configuration.queueCollapsed = false;
+        if (queueCollapsed) {
+            setQueueCollapsed(false);
         }
         inputRequested();
     }
@@ -542,12 +588,6 @@ PlasmoidItem {
             list.push(name);
         }
         setFolded(list);
-    }
-
-    // One write per change, and only names of groups that still exist
-    function setFolded(list) {
-        const names = doc ? doc.groups : groupNames;
-        Plasmoid.configuration.foldedGroups = JSON.stringify(list.filter(n => names.indexOf(n) !== -1));
     }
 
     function setWaiting(listName, index, on) {
@@ -632,43 +672,82 @@ PlasmoidItem {
             const lines = stdout.split("\n");
             homeFolder = lines[0].trim();
             documentsFolder = (lines[1] || lines[0]).trim();
-            filePath = Store.resolvePath(Plasmoid.configuration.filePath, homeFolder, documentsFolder);
-            load();
+            defaultPath = (lines[2] || "").trim();
+            pathsReady = true;
         });
     }
 
-    // Another task file was chosen in the settings: drop everything that
-    // belongs to the old one first, so none of it can be written to the new one.
-    Connections {
-        target: Plasmoid.configuration
-        function onFilePathChanged() {
-            if (root.documentsFolder === "") {
-                return;
-            }
-            const path = Store.resolvePath(Plasmoid.configuration.filePath, root.homeFolder, root.documentsFolder);
-            if (path === root.filePath) {
-                return;
-            }
-            root.doc = null;
-            root.loaded = false;
-            root.errorText = "";
-            root.undoSnapshot = "";
-            root.noticeText = "";
-            root.addGroup = "";
-            root.flashText = "";
-            root.writeQueued = false;
-            [todayModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
-            root.todayCount = root.todayTotal = root.todayWaiting = 0;
-            root.queueCount = root.queueTotal = root.dailyCount = root.doneCount = 0;
-            root.filePath = path;
-            root.load();
+    // Another workspace or path was chosen: drop everything that belongs to
+    // the old file first, so none of it can be written to the new one, then
+    // read the new one. A write still running to the old file finishes first
+    // (save() loads the new file when it is done).
+    function openTarget() {
+        if (targetPath === "" || targetPath === openedTarget) {
+            return;
+        }
+        openedTarget = targetPath;
+        doc = null;
+        loaded = false;
+        errorText = "";
+        undoSnapshot = "";
+        noticeText = "";
+        addGroup = "";
+        flashText = "";
+        writeQueued = false;
+        [todayModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
+        todayCount = todayTotal = todayWaiting = 0;
+        queueCount = queueTotal = dailyCount = doneCount = 0;
+        filePath = targetPath;
+        load();
+    }
+
+    function switchWorkspace(index) {
+        if (index >= 0 && index < workspaces.length && index !== activeIndex) {
+            Plasmoid.configuration.activeWorkspace = workspaces[index].name;
         }
     }
 
-    // Picks up edits made in another editor
+    // Fold state of the active workspace. One write per change, and only
+    // names of groups that still exist
+    function setFolded(list) {
+        const names = doc ? doc.groups : groupNames;
+        list = list.filter(n => names.indexOf(n) !== -1);
+        if (activeIndex === 0) {
+            Plasmoid.configuration.foldedGroups = JSON.stringify(list);
+            return;
+        }
+        const all = Object.assign({}, workspaceFolds);
+        all[activeName] = Object.assign({}, all[activeName], { groups: list });
+        Plasmoid.configuration.workspaceFolds = JSON.stringify(all);
+    }
+
+    function setQueueCollapsed(collapsed) {
+        if (activeIndex === 0) {
+            Plasmoid.configuration.queueCollapsed = collapsed;
+            return;
+        }
+        const all = Object.assign({}, workspaceFolds);
+        all[activeName] = Object.assign({}, all[activeName], { queue: collapsed });
+        Plasmoid.configuration.workspaceFolds = JSON.stringify(all);
+    }
+
+    function setDailyCollapsed(collapsed) {
+        if (activeIndex === 0) {
+            Plasmoid.configuration.dailyCollapsed = collapsed;
+            return;
+        }
+        const all = Object.assign({}, workspaceFolds);
+        all[activeName] = Object.assign({}, all[activeName], { daily: collapsed });
+        Plasmoid.configuration.workspaceFolds = JSON.stringify(all);
+    }
+
+    // Picks up edits made in another editor. While a folder setting is being
+    // looked up (the first read), a click must not read it as a file.
     onExpandedChanged: {
         if (root.expanded) {
-            load();
+            if (loaded) {
+                load();
+            }
         } else {
             showAbout = false;
             addGroup = "";

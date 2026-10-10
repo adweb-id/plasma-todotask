@@ -192,9 +192,77 @@ PlasmaExtras.Representation {
                     ColumnLayout {
                         spacing: 0
 
-                        Kirigami.Heading {
-                            level: 3
-                            text: i18n("Today")
+                        RowLayout {
+                            spacing: Kirigami.Units.smallSpacing
+
+                            Kirigami.Heading {
+                                level: 3
+                                text: i18n("Today")
+                            }
+
+                            // Which workspace is shown; click to switch to another one
+                            QQC2.AbstractButton {
+                                id: workspaceChip
+
+                                visible: full.widget.workspaces.length > 1
+                                hoverEnabled: true
+                                padding: 2
+                                leftPadding: Kirigami.Units.smallSpacing * 2
+                                rightPadding: Kirigami.Units.smallSpacing
+                                Layout.maximumWidth: Kirigami.Units.gridUnit * 10
+                                Accessible.name: i18n("Workspace: %1. Switch workspace", full.widget.activeName)
+                                onClicked: workspaceMenu.openAt(workspaceChip, Qt.point(workspaceMenu.implicitWidth, workspaceChip.height + 2))
+
+                                HoverHandler {
+                                    cursorShape: Qt.PointingHandCursor
+                                }
+
+                                contentItem: RowLayout {
+                                    spacing: 2
+
+                                    PlasmaComponents3.Label {
+                                        Layout.fillWidth: true
+                                        text: full.widget.activeName
+                                        font: Kirigami.Theme.smallFont
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Glyph {
+                                        implicitWidth: Math.round(Kirigami.Units.iconSizes.small * 0.7)
+                                        implicitHeight: implicitWidth
+                                        name: "chevron"
+                                        rotation: 90
+                                        opacity: 0.7
+                                    }
+                                }
+
+                                background: Rectangle {
+                                    radius: height / 2
+                                    color: full.alpha(Kirigami.Theme.highlightColor, workspaceChip.hovered || workspaceMenu.opened ? 0.3 : 0.16)
+                                    border.width: workspaceChip.visualFocus ? 2 : 0
+                                    border.color: Kirigami.Theme.focusColor
+
+                                    Behavior on color {
+                                        ColorAnimation { duration: Kirigami.Units.shortDuration }
+                                    }
+                                }
+
+                                ContextMenu {
+                                    id: workspaceMenu
+
+                                    Repeater {
+                                        model: full.widget.workspaces
+
+                                        MenuEntry {
+                                            required property int index
+                                            required property var modelData
+                                            iconName: index === full.widget.activeIndex ? "tick" : ""
+                                            text: modelData.name
+                                            onClicked: full.widget.switchWorkspace(index)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         PlasmaComponents3.Label {
@@ -507,12 +575,12 @@ PlasmaExtras.Representation {
                 title: i18n("Queue")
                 count: full.widget.queueTotal
                 foldable: true
-                open: !Plasmoid.configuration.queueCollapsed
-                onClicked: Plasmoid.configuration.queueCollapsed = open
+                open: !full.widget.queueCollapsed
+                onClicked: full.widget.setQueueCollapsed(open)
             }
 
             Item {
-                property real openness: Plasmoid.configuration.queueCollapsed ? 0 : 1
+                property real openness: full.widget.queueCollapsed ? 0 : 1
 
                 Layout.fillWidth: true
                 Layout.preferredHeight: queueList.implicitHeight * openness
@@ -539,12 +607,12 @@ PlasmaExtras.Representation {
                 title: i18n("Daily")
                 count: full.widget.dailyCount
                 foldable: true
-                open: !Plasmoid.configuration.dailyCollapsed
-                onClicked: Plasmoid.configuration.dailyCollapsed = open
+                open: !full.widget.dailyCollapsed
+                onClicked: full.widget.setDailyCollapsed(open)
             }
 
             Item {
-                property real openness: Plasmoid.configuration.dailyCollapsed ? 0 : 1
+                property real openness: full.widget.dailyCollapsed ? 0 : 1
 
                 Layout.fillWidth: true
                 Layout.preferredHeight: dailyColumn.implicitHeight * openness
@@ -702,9 +770,9 @@ PlasmaExtras.Representation {
             }
 
             IconButton {
-                visible: !toast.flashing && full.widget.noticeList === "queue" && Plasmoid.configuration.queueCollapsed
+                visible: !toast.flashing && full.widget.noticeList === "queue" && full.widget.queueCollapsed
                 text: i18n("Show")
-                onClicked: Plasmoid.configuration.queueCollapsed = false
+                onClicked: full.widget.setQueueCollapsed(false)
             }
 
             IconButton {
