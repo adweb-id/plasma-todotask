@@ -88,6 +88,10 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
 
+## Changelog for 0.2.1
+
+- The widget's right-click menu can switch workspace, as announced for 0.2.0: "Switch to …" with two workspaces, "Switch workspace…" (opens the list in the popup) with more
+
 ## Changelog for 0.2.0
 
 - Workspaces: keep separate lists (e.g. Work and Personal), each in its own file; switch from the chip next to "Today" or the widget's right-click menu

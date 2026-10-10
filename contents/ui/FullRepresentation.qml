@@ -237,6 +237,16 @@ PlasmaExtras.Representation {
                                 cursorShape: Qt.PointingHandCursor
                             }
 
+                            // "Switch workspace…" in the widget's own menu
+                            Timer {
+                                interval: Kirigami.Units.longDuration
+                                running: full.widget.workspaceMenuWanted && full.widget.expanded && workspaceChip.visible
+                                onTriggered: {
+                                    full.widget.workspaceMenuWanted = false;
+                                    workspaceChip.clicked();
+                                }
+                            }
+
                             contentItem: RowLayout {
                                 spacing: 2
 
