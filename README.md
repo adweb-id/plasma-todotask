@@ -230,8 +230,8 @@ after it has been written to the archive, so nothing is ever lost.
 ## Workspaces
 
 A workspace is a task file with a name, for example *Work* and *Personal*.
-Add them in the settings (*Add workspace*). With two or more, a chip next to
-"Today" shows the active workspace: click it to switch. The right-click menu
+Add them in the settings (*Add workspace*). With two or more, a chip at the
+top right of the popup shows the active workspace: click it to switch. The right-click menu
 of the widget has *Switch to …* as well.
 
 - Each workspace has its own file, archive files and fold state.
