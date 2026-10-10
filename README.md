@@ -125,9 +125,15 @@ Double-click the text to edit it: Enter saves, Esc cancels.
 
 | On | Items |
 | --- | --- |
-| A task | Move to Today / Queue, Move to top, Move to bottom, Edit, Add subtask, Repeat every work day (or Stop repeating), Delete |
-| A Daily task | Move to top, Move to bottom, Edit, Add subtask, Delete |
-| A subtask | Move up, Move down (within its task), Edit, Make it a task (a normal task right below, same group), Delete |
+| A task | Move to Today / Queue, Move to top, Move to bottom, Edit, Copy text, Add subtask, Repeat every work day (or Stop repeating), Delete |
+| A Daily task | Move to top, Move to bottom, Edit, Copy text, Add subtask, Delete |
+| A subtask | Move up, Move down (within its task), Edit, Copy text, Make it a task (a normal task right below, same group), Delete |
+| The Today heading | Copy all |
+
+*Copy text* puts the task on the clipboard, ready to paste into a chat or a
+ticket: a task without subtasks as its plain text, one with subtasks as a
+Markdown list. *Copy all* on the Today heading copies the whole Today list the
+same way, e.g. for a daily report. The file's own tags are left out.
 
 *Delete* asks first, under the row: "Delete this task?" with **Delete** and
 **Cancel**; it gives up after 6 seconds. Deleting a task also deletes its subtasks. Ticking a parent finishes all its

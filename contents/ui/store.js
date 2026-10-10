@@ -349,6 +349,32 @@ function serialize(doc) {
     return out.join("\n") + "\n";
 }
 
+// ---- copy to clipboard ---------------------------------------------------
+
+// A task as text for the clipboard: just its text, or with subtasks a
+// Markdown list without the tags and notes the file keeps
+function copyText(task) {
+    if (!task) {
+        return "";
+    }
+    if (!task.subs || task.subs.length === 0) {
+        return task.text;
+    }
+    var out = ["- [" + (task.done ? "x" : " ") + "] " + task.text];
+    task.subs.forEach(function (s) { out.push("  - [" + (s.done ? "x" : " ") + "] " + s.text); });
+    return out.join("\n");
+}
+
+// "Copy all" on a list: every task as a list line, subtasks below it
+function copyList(list) {
+    var out = [];
+    (list || []).forEach(function (task) {
+        out = out.concat(copyText(task).replace(/^(?!\s*- \[)/, "- [" + (task.done ? "x" : " ") + "] ").split("\n"));
+    });
+    return out.join("\n");
+}
+
+
 // ---- shell helpers -------------------------------------------------------
 
 // Single-quote a value for the shell.

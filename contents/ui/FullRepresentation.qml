@@ -351,11 +351,28 @@ PlasmaExtras.Representation {
             width: scroll.availableWidth
             spacing: 0
 
-            // ---- Today
+            // ---- Today; right-click copies the whole list, e.g. for a daily report
             SectionHeading {
+                id: todayHeading
                 Layout.topMargin: Kirigami.Units.smallSpacing
                 title: i18n("Today")
                 count: full.widget.todayTotal
+
+                TapHandler {
+                    acceptedButtons: Qt.RightButton
+                    onTapped: eventPoint => todayMenu.openAt(todayHeading, Qt.point(eventPoint.position.x + todayMenu.implicitWidth, eventPoint.position.y))
+                }
+
+                ContextMenu {
+                    id: todayMenu
+
+                    MenuEntry {
+                        iconName: "copy"
+                        text: i18n("Copy all")
+                        enabled: full.widget.todayTotal > 0
+                        onClicked: full.widget.copyAll("today")
+                    }
+                }
             }
 
             TaskList {
@@ -630,7 +647,10 @@ PlasmaExtras.Representation {
     Kirigami.ShadowedRectangle {
         id: toast
 
-        readonly property bool shown: full.listing && full.widget.noticeText !== ""
+        // A flash (e.g. "Copied …") shows over the notice for a moment; the
+        // notice and its Undo come back if they are still pending
+        readonly property bool flashing: full.widget.flashText !== ""
+        readonly property bool shown: full.listing && (flashing || full.widget.noticeText !== "")
 
         anchors.left: parent.left
         anchors.right: parent.right
@@ -670,25 +690,25 @@ PlasmaExtras.Representation {
             spacing: Kirigami.Units.smallSpacing
 
             Glyph {
-                name: "tick"
+                name: toast.flashing ? "copy" : "tick"
                 color: Kirigami.Theme.positiveTextColor
             }
 
             PlasmaComponents3.Label {
                 Layout.fillWidth: true
-                text: full.widget.noticeText
+                text: toast.flashing ? full.widget.flashText : full.widget.noticeText
                 elide: Text.ElideRight
                 maximumLineCount: 1
             }
 
             IconButton {
-                visible: full.widget.noticeList === "queue" && Plasmoid.configuration.queueCollapsed
+                visible: !toast.flashing && full.widget.noticeList === "queue" && Plasmoid.configuration.queueCollapsed
                 text: i18n("Show")
                 onClicked: Plasmoid.configuration.queueCollapsed = false
             }
 
             IconButton {
-                visible: full.widget.undoSnapshot !== ""
+                visible: !toast.flashing && full.widget.undoSnapshot !== ""
                 tone: "accent"
                 iconName: "undo"
                 text: i18n("Undo")

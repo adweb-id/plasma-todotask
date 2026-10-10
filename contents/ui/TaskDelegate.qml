@@ -548,6 +548,11 @@ Item {
                     onClicked: row.startEdit()
                 }
                 MenuEntry {
+                    iconName: "copy"
+                    text: i18n("Copy text")
+                    onClicked: row.widget.copyTask(row.listName, row.index)
+                }
+                MenuEntry {
                     iconName: "plus"
                     text: i18n("Add subtask")
                     onClicked: row.startAddSub()
@@ -672,6 +677,11 @@ Item {
                             iconName: "edit"
                             text: i18n("Edit")
                             onClicked: subRow.startEdit()
+                        }
+                        MenuEntry {
+                            iconName: "copy"
+                            text: i18n("Copy text")
+                            onClicked: row.widget.copySub(row.listName, row.index, subRow.index)
                         }
                         // A step that grew into work of its own
                         MenuEntry {

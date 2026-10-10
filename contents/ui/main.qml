@@ -55,6 +55,10 @@ PlasmoidItem {
     property string noticeText: ""
     property string noticeList: ""
 
+    // A short confirmation that changes nothing (e.g. "Copied …"). It is shown
+    // over the notice for 2 seconds and leaves a pending Undo alone.
+    property string flashText: ""
+
     property int nextUid: 1
 
     // The popup shows the About page instead of the lists (from the panel icon's menu)
@@ -366,6 +370,49 @@ PlasmoidItem {
         });
     }
 
+    // ---- clipboard -----------------------------------------------------
+
+    Clipboard {
+        id: clipboard
+    }
+
+    Timer {
+        id: flashTimer
+        interval: 2000
+        onTriggered: root.flashText = ""
+    }
+
+    function toClipboard(text, flash) {
+        if (text === "") {
+            return;
+        }
+        clipboard.put(text);
+        flashText = flash;
+        flashTimer.restart();
+    }
+
+    function copyTask(listName, index) {
+        const task = doc ? doc[listName][index] : null;
+        if (task) {
+            toClipboard(Store.copyText(task), i18n("Copied: %1", task.text));
+        }
+    }
+
+    function copySub(listName, index, subIndex) {
+        const task = doc ? doc[listName][index] : null;
+        const sub = task ? task.subs[subIndex] : null;
+        if (sub) {
+            toClipboard(sub.text, i18n("Copied: %1", sub.text));
+        }
+    }
+
+    function copyAll(listName) {
+        const list = doc ? doc[listName] : [];
+        if (list.length > 0) {
+            toClipboard(Store.copyList(list), i18np("Copied %1 task", "Copied %1 tasks", list.length));
+        }
+    }
+
     // ---- changes -------------------------------------------------------
 
     // Every edit goes through here: mutate, redraw, write.
@@ -608,6 +655,7 @@ PlasmoidItem {
             root.undoSnapshot = "";
             root.noticeText = "";
             root.addGroup = "";
+            root.flashText = "";
             root.writeQueued = false;
             [todayModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
             root.todayCount = root.todayTotal = root.todayWaiting = 0;
