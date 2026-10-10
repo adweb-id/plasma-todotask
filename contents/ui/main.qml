@@ -100,6 +100,8 @@ PlasmoidItem {
 
     // The popup shows the About page instead of the lists (from the panel icon's menu)
     property bool showAbout: false
+    // Set by "Switch workspace…": the popup opens its workspace menu
+    property bool workspaceMenuWanted: false
 
     readonly property alias todayModel: todayModel
     readonly property alias queueModel: queueModel
@@ -114,22 +116,45 @@ PlasmoidItem {
                                       : i18n("%1 left today, %2 in queue", todayCount, queueCount)
 
     // Plasma's own menu: theme icons, like its other entries
-    Plasmoid.contextualActions: [
-        PlasmaCore.Action {
-            text: root.filePath !== "" ? i18n("Open %1", root.filePath.split("/").pop()) : i18n("Open task file")
-            icon.name: "document-open"
-            enabled: root.filePath !== ""
-            onTriggered: root.openFile()
-        },
-        PlasmaCore.Action {
-            text: i18n("About Todo Task")
-            icon.name: "help-about"
-            onTriggered: {
-                root.showAbout = true;
+    Plasmoid.contextualActions: [openAction, switchAction, aboutAction]
+
+    // One line whatever the number of workspaces: with two it switches to
+    // the other one, with more it opens the popup with the workspace menu
+    PlasmaCore.Action {
+        id: switchAction
+        readonly property int other: root.activeIndex === 0 ? 1 : 0
+        text: root.workspaces.length === 2 ? i18n("Switch to %1", root.workspaces[other].name)
+                                           : i18n("Switch workspace…")
+        icon.name: "exchange-positions"
+        visible: root.workspaces.length > 1
+        onTriggered: {
+            if (root.workspaces.length === 2) {
+                root.switchWorkspace(other);
+            } else {
+                root.showAbout = false;
+                root.workspaceMenuWanted = true;
                 root.expanded = true;
             }
         }
-    ]
+    }
+
+    PlasmaCore.Action {
+        id: openAction
+        text: root.filePath !== "" ? i18n("Open %1", root.filePath.split("/").pop()) : i18n("Open task file")
+        icon.name: "document-open"
+        enabled: root.filePath !== ""
+        onTriggered: root.openFile()
+    }
+
+    PlasmaCore.Action {
+        id: aboutAction
+        text: i18n("About Todo Task")
+        icon.name: "help-about"
+        onTriggered: {
+            root.showAbout = true;
+            root.expanded = true;
+        }
+    }
 
     compactRepresentation: CompactRepresentation { widget: root }
     fullRepresentation: FullRepresentation { widget: root }
@@ -750,6 +775,7 @@ PlasmoidItem {
             }
         } else {
             showAbout = false;
+            workspaceMenuWanted = false;
             addGroup = "";
         }
     }
