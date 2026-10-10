@@ -18,12 +18,13 @@ Published at https://www.opendesktop.org/p/2377548/
 
 ## Screenshots (in this order)
 
+The store takes at most 5 images, so `take.sh` makes exactly these five.
+
 1. `docs/screenshots/overview.png`
 2. `docs/screenshots/menu.png`
 3. `docs/screenshots/groups.png`
 4. `docs/screenshots/toast.png`
 5. `docs/screenshots/overview-light.png`
-6. `docs/screenshots/about.png`
 
 ## Summary (one line)
 

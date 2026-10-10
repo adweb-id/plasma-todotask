@@ -139,9 +139,6 @@ Item {
             case "groups":
                 driver.widget.addGroup = "API";
                 break;
-            case "about":
-                driver.widget.showAbout = true;
-                break;
             }
         }
     }

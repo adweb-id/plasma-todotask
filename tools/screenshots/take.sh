@@ -22,12 +22,11 @@ mkdir -p "$OUT"
 TODAY=$(date +%F)
 YESTERDAY=$(date -d yesterday +%F)
 
-# name|colours|width|height
+# name|colours|width|height  (five scenarios: the KDE Store takes at most 5 images)
 SCENARIOS='overview|BreezeDark|400|780
 groups|BreezeDark|400|640
 menu|BreezeDark|400|560
 toast|BreezeDark|400|560
-about|BreezeDark|400|500
 overview-light|BreezeLight|400|780'
 
 # A config folder of its own: demo Documents folder, one Breeze colour scheme

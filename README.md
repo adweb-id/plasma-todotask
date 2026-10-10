@@ -36,8 +36,8 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 | --- | --- | --- |
 | ![Today and the Queue](docs/screenshots/overview.png) | ![Right-click menu](docs/screenshots/menu.png) | ![Project groups and Daily](docs/screenshots/groups.png) |
 | Today with subtasks, carried-over and Daily tasks; the Queue in project groups | Right-click menu of a task | Groups folded, adding straight to the API group, the Daily list |
-| ![Undo after adding](docs/screenshots/toast.png) | ![Light theme](docs/screenshots/overview-light.png) | ![About](docs/screenshots/about.png) |
-| Every change can be undone for 5 seconds | Follows the Plasma theme, light or dark | About Todo Task |
+| ![Undo after adding](docs/screenshots/toast.png) | ![Light theme](docs/screenshots/overview-light.png) | |
+| Every change can be undone for 5 seconds | Follows the Plasma theme, light or dark | |
 
 Screenshots use demo data; see *Development* to regenerate them.
 
