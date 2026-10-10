@@ -173,7 +173,7 @@ PlasmaExtras.Representation {
         contentItem: ColumnLayout {
             spacing: Kirigami.Units.largeSpacing
 
-            // Title and date on the left, done / total on the right, the bar below
+            // Title and date on the left, workspace and done / total on the right, the bar below
             ColumnLayout {
                 id: headerBox
 
@@ -192,77 +192,9 @@ PlasmaExtras.Representation {
                     ColumnLayout {
                         spacing: 0
 
-                        RowLayout {
-                            spacing: Kirigami.Units.smallSpacing
-
-                            Kirigami.Heading {
-                                level: 3
-                                text: i18n("Today")
-                            }
-
-                            // Which workspace is shown; click to switch to another one
-                            QQC2.AbstractButton {
-                                id: workspaceChip
-
-                                visible: full.widget.workspaces.length > 1
-                                hoverEnabled: true
-                                padding: 2
-                                leftPadding: Kirigami.Units.smallSpacing * 2
-                                rightPadding: Kirigami.Units.smallSpacing
-                                Layout.maximumWidth: Kirigami.Units.gridUnit * 10
-                                Accessible.name: i18n("Workspace: %1. Switch workspace", full.widget.activeName)
-                                onClicked: workspaceMenu.openAt(workspaceChip, Qt.point(workspaceMenu.implicitWidth, workspaceChip.height + 2))
-
-                                HoverHandler {
-                                    cursorShape: Qt.PointingHandCursor
-                                }
-
-                                contentItem: RowLayout {
-                                    spacing: 2
-
-                                    PlasmaComponents3.Label {
-                                        Layout.fillWidth: true
-                                        text: full.widget.activeName
-                                        font: Kirigami.Theme.smallFont
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Glyph {
-                                        implicitWidth: Math.round(Kirigami.Units.iconSizes.small * 0.7)
-                                        implicitHeight: implicitWidth
-                                        name: "chevron"
-                                        rotation: 90
-                                        opacity: 0.7
-                                    }
-                                }
-
-                                background: Rectangle {
-                                    radius: height / 2
-                                    color: full.alpha(Kirigami.Theme.highlightColor, workspaceChip.hovered || workspaceMenu.opened ? 0.3 : 0.16)
-                                    border.width: workspaceChip.visualFocus ? 2 : 0
-                                    border.color: Kirigami.Theme.focusColor
-
-                                    Behavior on color {
-                                        ColorAnimation { duration: Kirigami.Units.shortDuration }
-                                    }
-                                }
-
-                                ContextMenu {
-                                    id: workspaceMenu
-
-                                    Repeater {
-                                        model: full.widget.workspaces
-
-                                        MenuEntry {
-                                            required property int index
-                                            required property var modelData
-                                            iconName: index === full.widget.activeIndex ? "tick" : ""
-                                            text: modelData.name
-                                            onClicked: full.widget.switchWorkspace(index)
-                                        }
-                                    }
-                                }
-                            }
+                        Kirigami.Heading {
+                            level: 3
+                            text: i18n("Today")
                         }
 
                         PlasmaComponents3.Label {
@@ -282,17 +214,88 @@ PlasmaExtras.Representation {
                         Layout.fillWidth: true
                     }
 
-                    PlasmaComponents3.Label {
+                    // Workspace on top, done / total below it
+                    ColumnLayout {
                         Layout.alignment: Qt.AlignTop
-                        Layout.topMargin: Kirigami.Units.smallSpacing
-                        visible: headerBox.total > 0
-                        text: i18nc("done of total · percent", "%1/%2 · %3%", full.widget.doneCount, headerBox.total,
-                                    Math.round(progress.shown * 100))
-                        font.weight: Font.DemiBold
-                        font.features: { "tnum": 1 }
-                        color: progress.value >= 1 ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.textColor
-                        opacity: progress.value >= 1 ? 1 : 0.85
-                        Accessible.name: i18n("%1 of %2 done today", full.widget.doneCount, headerBox.total)
+                        spacing: Kirigami.Units.smallSpacing
+
+                        // Which workspace is shown; click to switch to another one
+                        QQC2.AbstractButton {
+                            id: workspaceChip
+
+                            visible: full.widget.workspaces.length > 1
+                            hoverEnabled: true
+                            padding: 2
+                            leftPadding: Kirigami.Units.smallSpacing * 2
+                            rightPadding: Kirigami.Units.smallSpacing
+                            Layout.alignment: Qt.AlignRight
+                            Layout.maximumWidth: Kirigami.Units.gridUnit * 10
+                            Accessible.name: i18n("Workspace: %1. Switch workspace", full.widget.activeName)
+                            onClicked: workspaceMenu.openAt(workspaceChip, Qt.point(workspaceChip.width, workspaceChip.height + 2))
+
+                            HoverHandler {
+                                cursorShape: Qt.PointingHandCursor
+                            }
+
+                            contentItem: RowLayout {
+                                spacing: 2
+
+                                PlasmaComponents3.Label {
+                                    Layout.fillWidth: true
+                                    text: full.widget.activeName
+                                    font: Kirigami.Theme.smallFont
+                                    elide: Text.ElideRight
+                                }
+
+                                Glyph {
+                                    implicitWidth: Math.round(Kirigami.Units.iconSizes.small * 0.7)
+                                    implicitHeight: implicitWidth
+                                    name: "chevron"
+                                    rotation: 90
+                                    opacity: 0.7
+                                }
+                            }
+
+                            background: Rectangle {
+                                radius: height / 2
+                                color: full.alpha(Kirigami.Theme.highlightColor, workspaceChip.hovered || workspaceMenu.opened ? 0.3 : 0.16)
+                                border.width: workspaceChip.visualFocus ? 2 : 0
+                                border.color: Kirigami.Theme.focusColor
+
+                                Behavior on color {
+                                    ColorAnimation { duration: Kirigami.Units.shortDuration }
+                                }
+                            }
+
+                            ContextMenu {
+                                id: workspaceMenu
+
+                                Repeater {
+                                    model: full.widget.workspaces
+
+                                    MenuEntry {
+                                        required property int index
+                                        required property var modelData
+                                        iconName: index === full.widget.activeIndex ? "tick" : ""
+                                        text: modelData.name
+                                        onClicked: full.widget.switchWorkspace(index)
+                                    }
+                                }
+                            }
+                        }
+
+                        PlasmaComponents3.Label {
+                            Layout.alignment: Qt.AlignRight
+                            Layout.topMargin: workspaceChip.visible ? 0 : Kirigami.Units.smallSpacing
+                            visible: headerBox.total > 0
+                            text: i18nc("done of total · percent", "%1/%2 · %3%", full.widget.doneCount, headerBox.total,
+                                        Math.round(progress.shown * 100))
+                            font.weight: Font.DemiBold
+                            font.features: { "tnum": 1 }
+                            color: progress.value >= 1 ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.textColor
+                            opacity: progress.value >= 1 ? 1 : 0.85
+                            Accessible.name: i18n("%1 of %2 done today", full.widget.doneCount, headerBox.total)
+                        }
                     }
                 }
 
