@@ -54,7 +54,8 @@ ORGANISE
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
-- Drag to reorder, bold and italic text
+- Drag a task to reorder it
+- Bold and italic text: type **bold** or *italic* in a task
 - Undo for 5 seconds after adding, ticking or deleting
 
 YOUR FILE
