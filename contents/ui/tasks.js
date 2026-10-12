@@ -400,6 +400,46 @@ function subDone(task) {
     return task.subs.filter(function (s) { return s.done; }).length;
 }
 
+// Puts `mark` ("**" or "*") around text[start, end), or takes it away when the
+// selection already has it (inside or just outside the selection). Spaces at
+// the ends stay outside the marks, as "** word**" would not be formatted.
+// Without a selection an empty pair is put at the cursor (or taken away). Gives the new text
+// and the selection (the words, without their marks).
+function toggleMark(text, start, end, mark) {
+    text = String(text);
+    var n = mark.length;
+    // A run of k asterisks: bold needs two of them, italic one that is left over
+    function has(k) {
+        return n === 2 ? k >= 2 : k === 1 || k === 3;
+    }
+    while (start < end && /\s/.test(text.charAt(start))) {
+        start++;
+    }
+    while (end > start && /\s/.test(text.charAt(end - 1))) {
+        end--;
+    }
+    var before = /\**$/.exec(text.slice(0, start))[0].length;
+    var after = /^\**/.exec(text.slice(end))[0].length;
+    if (start === end) {
+        if (has(Math.min(before, after))) {
+            // The cursor is in an empty pair: take it away again
+            return { text: text.slice(0, start - n) + text.slice(end + n), start: start - n, end: start - n };
+        }
+        return { text: text.slice(0, start) + mark + mark + text.slice(start), start: start + n, end: start + n };
+    }
+    var sel = text.slice(start, end);
+    var lead = /^\**/.exec(sel)[0].length;
+    var trail = /\**$/.exec(sel)[0].length;
+    if (lead < sel.length && has(Math.min(lead, trail))) {
+        var inner = sel.slice(n, sel.length - n);
+        return { text: text.slice(0, start) + inner + text.slice(end), start: start, end: start + inner.length };
+    }
+    if (has(Math.min(before, after))) {
+        return { text: text.slice(0, start - n) + sel + text.slice(end + n), start: start - n, end: end - n };
+    }
+    return { text: text.slice(0, start) + mark + sel + mark + text.slice(end), start: start + n, end: end + n };
+}
+
 // **bold** and *italic* only. Everything else, HTML included, shows as typed.
 function styled(text) {
     var safe = String(text)

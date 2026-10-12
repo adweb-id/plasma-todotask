@@ -347,6 +347,8 @@ PlasmaExtras.Representation {
                     }
                 }
 
+                FormatBar {}
+
                 // Which group new tasks go to; ✕ stops
                 Rectangle {
                     id: groupChip

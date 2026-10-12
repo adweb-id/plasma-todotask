@@ -12,6 +12,8 @@ items can change; suggestions are welcome in the
 | 0.1.1 | Daily routine tasks, added to Today every work day; subtasks no longer show a check box in the Queue and Daily list; drag a task to the bottom of Today |
 | 0.1.2 | Waiting status; copy a task, a subtask or the whole Today list to the clipboard; project groups in the Queue; hover button for adding a subtask; reorder subtasks and turn one into a task; reload button; choose where the task file lives |
 | 0.2.0 | Workspaces: separate lists (e.g. Work and Personal), each in its own file; the task path can be a folder; new default location `Documents/todotask/todo.md` |
+| 0.2.1 | Switch workspace from the widget's right-click menu |
+| 0.2.2 | Bold and italic from a small bar over the selected text, or Ctrl+B / Ctrl+I; one editor open at a time |
 
 ## Planned
 

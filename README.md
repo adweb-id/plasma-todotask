@@ -25,7 +25,7 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 - **Waiting**: mark tasks that are on hold; they dim, sink to the bottom and are skipped by *Pull next* and the counts.
 - **Daily routine**: tasks in the Daily list are added to the top of Today every work day.
 - **Subtasks**, one level deep, with progress such as `1/3` on the parent.
-- **Bold and italic**: `**bold**` and `*italic*` are shown formatted.
+- **Bold and italic**: `**bold**` and `*italic*` are shown formatted. Select text while typing or editing and click **B** or *I* in the small bar above it, or press Ctrl+B / Ctrl+I, to add or remove the asterisks.
 - **Drag to reorder**, or right-click → *Move to top / bottom*.
 - **Undo** for 5 seconds after ticking or deleting.
 - **Daily archive**: finished tasks are kept per date, and days older than a week move to a monthly archive file.

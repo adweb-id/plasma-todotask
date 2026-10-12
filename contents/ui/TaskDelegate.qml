@@ -68,15 +68,30 @@ Item {
         return Qt.font(spec);
     }
 
+    // One editor at a time: opening one saves and closes the others
     function startEdit() {
+        widget.editorOpened(editField);
         editing = true;
         editField.text = taskText;
         editField.forceActiveFocus();
     }
 
     function startAddSub() {
+        widget.editorOpened(subField);
         addingSub = true;
         subField.forceActiveFocus();
+    }
+
+    Connections {
+        target: row.widget
+        function onEditorOpened(field) {
+            if (row.editing && field !== editField) {
+                editField.commit();
+            }
+            if (row.addingSub && field !== subField) {
+                subField.commit();
+            }
+        }
     }
 
     function askDelete(subIndex) {
@@ -395,14 +410,19 @@ Item {
                     id: editField
                     Layout.fillWidth: true
                     visible: row.editing
-                    onAccepted: {
+                    function commit() {
                         row.editing = false;
-                        row.widget.editTask(row.listName, row.index, text);
+                        if (text !== row.taskText) {
+                            row.widget.editTask(row.listName, row.index, text);
+                        }
                     }
+                    onAccepted: commit()
                     Keys.onEscapePressed: event => {
                         row.editing = false;
                         event.accepted = true;
                     }
+
+                    FormatBar {}
                 }
 
                 // Subtask progress, e.g. 1/3
@@ -641,10 +661,23 @@ Item {
                     required property int index
                     required property var modelData
 
+                    // Saving another subtask of this task builds these rows
+                    // anew, so the field fills itself when it shows (see subEdit)
                     function startEdit() {
-                        row.editingSub = subRow.index;
-                        subEdit.text = subRow.modelData.text;
-                        subEdit.forceActiveFocus();
+                        // This row may be gone once the others have saved
+                        const task = row;
+                        const index = subRow.index;
+                        task.widget.editorOpened(subEdit);
+                        task.editingSub = index;
+                    }
+
+                    Connections {
+                        target: row.widget
+                        function onEditorOpened(field) {
+                            if (row.editingSub === subRow.index && field !== subEdit) {
+                                subEdit.commit();
+                            }
+                        }
                     }
 
                     Layout.fillWidth: true
@@ -745,14 +778,27 @@ Item {
                         id: subEdit
                         Layout.fillWidth: true
                         visible: row.editingSub === subRow.index
-                        onAccepted: {
-                            row.editingSub = -1;
-                            row.widget.editSub(row.listName, row.index, subRow.index, text);
+                        function open() {
+                            if (visible) {
+                                text = subRow.modelData.text;
+                                forceActiveFocus();
+                            }
                         }
+                        function commit() {
+                            row.editingSub = -1;
+                            if (text !== subRow.modelData.text) {
+                                row.widget.editSub(row.listName, row.index, subRow.index, text);
+                            }
+                        }
+                        onVisibleChanged: open()
+                        Component.onCompleted: open()
+                        onAccepted: commit()
                         Keys.onEscapePressed: event => {
                             row.editingSub = -1;
                             event.accepted = true;
                         }
+
+                        FormatBar {}
                     }
                 }
             }
@@ -765,17 +811,22 @@ Item {
                 Layout.leftMargin: row.checkSize + Kirigami.Units.largeSpacing
                 visible: row.addingSub
                 placeholderText: i18n("Add subtask, press Enter")
-                onAccepted: {
+                function commit() {
                     const value = text;
                     text = "";
                     row.addingSub = false;
-                    row.widget.addSub(row.listName, row.index, value);
+                    if (value.trim() !== "") {
+                        row.widget.addSub(row.listName, row.index, value);
+                    }
                 }
+                onAccepted: commit()
                 Keys.onEscapePressed: event => {
                     text = "";
                     row.addingSub = false;
                     event.accepted = true;
                 }
+
+                FormatBar {}
             }
 
             // ---- delete confirmation, slides open under the row
