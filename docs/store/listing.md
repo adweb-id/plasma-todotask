@@ -55,7 +55,7 @@ ORGANISE
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
 - Drag a task to reorder it
-- Bold and italic text: type **bold** or *italic* in a task
+- Bold and italic text: put two asterisks around words for bold, one for italic
 - Undo for 5 seconds after adding, ticking or deleting
 
 YOUR FILE
