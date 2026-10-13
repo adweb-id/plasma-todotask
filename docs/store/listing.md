@@ -88,6 +88,11 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
 
+## Changelog for 0.2.2
+
+- Bold and italic without typing asterisks: select text while adding or editing a task and click B or I in the small bar above it, or press Ctrl+B / Ctrl+I; click again to remove the formatting
+- Only one task or subtask is edited at a time: opening another one saves the one that was open
+
 ## Changelog for 0.2.1
 
 - The widget's right-click menu can switch workspace, as announced for 0.2.0: "Switch to …" with two workspaces, "Switch workspace…" (opens the list in the popup) with more

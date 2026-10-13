@@ -79,6 +79,8 @@ PlasmoidItem {
 
     // Asks the popup to put the cursor in the input
     signal inputRequested()
+    // A row started editing in `field`: the other open editors save and close
+    signal editorOpened(var field)
     property int doneCount: 0
 
     property bool writing: false
