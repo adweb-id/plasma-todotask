@@ -95,6 +95,7 @@ PlasmaExtras.Representation {
         property int count: 0
         property bool foldable: false
         property bool open: true
+        property string tip: ""
 
         Layout.fillWidth: true
         Layout.leftMargin: Kirigami.Units.largeSpacing
@@ -107,6 +108,10 @@ PlasmaExtras.Representation {
 
         Accessible.role: foldable ? Accessible.Button : Accessible.Heading
         Accessible.name: title
+
+        QQC2.ToolTip.text: tip
+        QQC2.ToolTip.visible: tip !== "" && hovered
+        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
 
         Behavior on opacity {
             NumberAnimation { duration: Kirigami.Units.shortDuration }
@@ -620,6 +625,7 @@ PlasmaExtras.Representation {
             SectionHeading {
                 visible: full.widget.dailyCount > 0
                 title: i18n("Daily")
+                tip: i18n("Added to Today every work day. Date variables are filled in for the day: {date}, {date-1}, {date:dd/MM/yyyy}")
                 count: full.widget.dailyCount
                 foldable: true
                 open: !full.widget.dailyCollapsed

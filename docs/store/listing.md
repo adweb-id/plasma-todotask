@@ -47,6 +47,7 @@ EVERY DAY
 - Tick a task: it is struck through and moves to "Done today"; untick to bring it back
 - Unfinished tasks stay in Today on a new day, marked "yesterday"
 - Daily routine: tasks in the Daily list are added to the top of Today every work day
+- Date variables in Daily tasks: {date}, {date-1} or {date:dd/MM/yyyy} become the date of the day, handy for a daily query or report
 
 ORGANISE
 

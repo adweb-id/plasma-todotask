@@ -191,6 +191,20 @@ Today, marked with 🔁, and ticked like any other task.
 - An unfinished copy from yesterday is replaced by today's, never doubled, and never marked "yesterday".
 - Work days are Monday to Friday by default; change them in the settings.
 
+A Daily task can hold **date variables**. They are filled in when the copy for
+the day is made, in the task, its subtasks and its notes. The task in the
+Daily list keeps the variable.
+
+| Written in the Daily task | In today's copy (on 13 Oct 2026) |
+| --- | --- |
+| `{date}` | `2026-10-13` |
+| `{date-1}`, `{date+7}` | `2026-10-12`, `2026-10-20` |
+| `{date:dd/MM/yyyy}` | `13/10/2026` |
+| `{date-1:yyyy-MM}` | `2026-10` |
+
+The format takes `yyyy`, `yy`, `MM`, `M`, `dd` and `d`. For example a query
+kept as a subtask: `SELECT … WHERE created_at LIKE '{date}%'`.
+
 ### A new day
 
 Checked when the widget loads and once a minute:

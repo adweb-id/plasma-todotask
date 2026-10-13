@@ -32,15 +32,38 @@ function weekday(date) {
     return new Date(Date.parse(date + "T00:00:00Z")).getUTCDay();
 }
 
-// A fresh Today copy of a Daily template task
+// Fills in the date variables of a Daily template, for the day of the copy:
+//   {date}             2026-10-13
+//   {date-1} {date+7}  that many days earlier or later
+//   {date:dd/MM/yyyy}  another format: yyyy yy MM M dd d, anything else as typed
+//   {date-1:yyyy-MM}   both
+// Anything else in braces is left alone.
+function fillDates(text, today) {
+    return String(text).replace(/\{date([+-]\d{1,4})?(?::([^{}]+))?\}/g, function (all, shift, format) {
+        var day = new Date(Date.parse(today + "T00:00:00Z") + Number(shift || 0) * 86400000);
+        if (isNaN(day.getTime())) {
+            return all;
+        }
+        var y = String(day.getUTCFullYear());
+        var m = day.getUTCMonth() + 1;
+        var d = day.getUTCDate();
+        var parts = { yyyy: y, yy: y.slice(-2), MM: (m < 10 ? "0" : "") + m, M: String(m), dd: (d < 10 ? "0" : "") + d, d: String(d) };
+        return (format || "yyyy-MM-dd").replace(/yyyy|yy|MM|M|dd|d/g, function (token) { return parts[token]; });
+    });
+}
+
+// A fresh Today copy of a Daily template task, its date variables filled in
 function dailyCopy(template, today) {
+    function fill(lines) {
+        return (lines || []).map(function (line) { return fillDates(line, today); });
+    }
     return {
-        text: template.text,
+        text: fillDates(template.text, today),
         done: false,
         since: today,
         daily: true,
-        notes: (template.notes || []).slice(),
-        subs: template.subs.map(function (s) { return { text: s.text, done: false, notes: (s.notes || []).slice() }; })
+        notes: fill(template.notes),
+        subs: template.subs.map(function (s) { return { text: fillDates(s.text, today), done: false, notes: fill(s.notes) }; })
     };
 }
 
