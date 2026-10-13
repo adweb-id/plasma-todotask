@@ -56,6 +56,6 @@ items can change; suggestions are welcome in the
 
 ## Not planned
 
-To keep the widget small and simple: due dates and reminders, priorities,
-time tracking, and accounts or online services. Your tasks stay in plain
+To keep the widget small and simple: due dates and reminders, priority levels
+(one *urgent* mark is all there is), time tracking, and accounts or online services. Your tasks stay in plain
 Markdown files on your own disk.

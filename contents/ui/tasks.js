@@ -104,8 +104,8 @@ function add(doc, listName, text, today, group) {
 // ---- Queue groups ("### SRSX" in the file) ------------------------------
 
 // Keeps the Queue in file order: tasks without a group first, then group by
-// group, each keeping its own order, waiting tasks at the end of their group
-// (and of Today). Every change runs it, so the list views
+// group, each keeping its own order, urgent tasks at the start of their group
+// and waiting tasks at the end (the same in Today). Every change runs it, so the list views
 // can rely on the tasks of one group being next to each other.
 function tidy(doc) {
     var buckets = { "": [] };
@@ -215,6 +215,7 @@ function complete(doc, index, today) {
     }
     task.done = true;
     task.waiting = false;
+    task.urgent = false;
     task.subs.forEach(function (s) { s.done = true; });
     doneGroup(doc, today).items.unshift(task);
 }
@@ -296,13 +297,24 @@ function moveToEdge(doc, listName, index, toTop) {
     }
 }
 
-// The first Queue task that is not waiting
+// The first urgent Queue task, or else the first one that is not waiting
 function pullNext(doc, today) {
+    var pick = -1;
     for (var i = 0; i < doc.queue.length; i++) {
-        if (!doc.queue[i].waiting) {
-            move(doc, "queue", i, today);
-            return;
+        var task = doc.queue[i];
+        if (task.waiting) {
+            continue;
         }
+        if (task.urgent) {
+            pick = i;
+            break;
+        }
+        if (pick === -1) {
+            pick = i;
+        }
+    }
+    if (pick !== -1) {
+        move(doc, "queue", pick, today);
     }
 }
 
@@ -315,9 +327,20 @@ function setWaiting(doc, listName, index, on) {
     }
 }
 
-// Tasks that can be worked on first, waiting ones after, each keeping its order
+// ---- urgent --------------------------------------------------------------
+
+function setUrgent(doc, listName, index, on) {
+    var task = doc[listName][index];
+    if (task) {
+        task.urgent = !!on;
+    }
+}
+
+// Urgent tasks first, then the others that can be worked on, waiting ones
+// last (urgent or not), each keeping its order
 function activeFirst(list) {
-    return list.filter(function (t) { return !t.waiting; })
+    return list.filter(function (t) { return !t.waiting && t.urgent; })
+               .concat(list.filter(function (t) { return !t.waiting && !t.urgent; }))
                .concat(list.filter(function (t) { return t.waiting; }));
 }
 

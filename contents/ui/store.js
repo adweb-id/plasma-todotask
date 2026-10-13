@@ -15,9 +15,10 @@
 //   groupHead: { "SRSX": [lines between "### SRSX" and its first task] },
 //   others:    [lines of any other "#"/"##" section, kept as they are]
 // }
-// task = { text, done, since, daily, waiting, group, notes: [], subs: [{ text, done, notes: [] }] }
-// Tags after the task text, in one comment: <!-- since:2026-10-07 daily waiting group:"rw livechat" -->
-// `waiting` marks a task that is on hold (waiting for someone or something).
+// task = { text, done, since, daily, waiting, urgent, group, notes: [], subs: [{ text, done, notes: [] }] }
+// Tags after the task text, in one comment: <!-- since:2026-10-07 daily urgent waiting group:"rw livechat" -->
+// `waiting` marks a task that is on hold (waiting for someone or something),
+// `urgent` one that has to be done first.
 // `daily` marks a copy made from the Daily template; `group` remembers the
 // project of a task outside the Queue (inside it, the "###" heading says it).
 //
@@ -43,13 +44,14 @@ function emptyDoc(today) {
     };
 }
 
-var TAG = '(?:since:\\d{4}-\\d{2}-\\d{2}|daily|waiting|group:"(?:[^"\\\\]|\\\\.)*")';
+var TAG = '(?:since:\\d{4}-\\d{2}-\\d{2}|daily|urgent|waiting|group:"(?:[^"\\\\]|\\\\.)*")';
 var TAGS = new RegExp("\\s*<!--\\s*(" + TAG + "(?:\\s+" + TAG + ")*)\\s*-->\\s*$");
 
 function makeTask(rawText, done) {
     var since = "";
     var daily = false;
     var waiting = false;
+    var urgent = false;
     var group = "";
     var text = rawText;
     // A trailing comment made only of our tags; any other comment stays in the text
@@ -63,6 +65,8 @@ function makeTask(rawText, done) {
                 daily = true;
             } else if (tag[0] === "waiting") {
                 waiting = true;
+            } else if (tag[0] === "urgent") {
+                urgent = true;
             } else if (tag[0].indexOf("since:") === 0) {
                 since = tag[0].slice(6);
             } else {
@@ -70,7 +74,8 @@ function makeTask(rawText, done) {
             }
         }
     }
-    return { text: text.trim(), done: done, since: since, daily: daily, waiting: waiting, group: group, notes: [], subs: [] };
+    return { text: text.trim(), done: done, since: since, daily: daily, waiting: waiting, urgent: urgent,
+             group: group, notes: [], subs: [] };
 }
 
 // Width of the leading white space; a tab counts as one list level (2)
@@ -267,6 +272,9 @@ function taskLines(task, withSince, withGroup) {
     }
     if (task.daily) {
         tags.push("daily");
+    }
+    if (task.urgent) {
+        tags.push("urgent");
     }
     if (task.waiting) {
         tags.push("waiting");

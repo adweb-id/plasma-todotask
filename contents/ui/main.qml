@@ -355,6 +355,7 @@ PlasmoidItem {
             carried: !task.daily && task.since !== "" && task.since < now,
             daily: !!task.daily,
             waiting: !!task.waiting,
+            urgent: !!task.urgent,
             group: task.group || "",
             subsJson: JSON.stringify(task.subs),
             subDone: Tasks.subDone(task),
@@ -366,6 +367,7 @@ PlasmoidItem {
             carried: false,
             daily: false,
             waiting: !!task.waiting,
+            urgent: !!task.urgent,
             group: task.group || "",
             subsJson: JSON.stringify(task.subs),
             subDone: Tasks.subDone(task),
@@ -623,6 +625,12 @@ PlasmoidItem {
                on ? i18n("Waiting: %1", name) : i18n("Back to work: %1", name));
     }
 
+    function setUrgent(listName, index, on) {
+        const name = doc[listName][index] ? doc[listName][index].text : "";
+        change(d => Tasks.setUrgent(d, listName, index, on),
+               on ? i18n("Urgent: %1", name) : i18n("Not urgent: %1", name));
+    }
+
     function moveToEdge(listName, index, toTop) {
         change(d => Tasks.moveToEdge(d, listName, index, toTop));
     }
@@ -682,7 +690,7 @@ PlasmoidItem {
         }
         if (ordered.length === doc[listName].length) {
             doc[listName] = ordered;
-            // Same rules as every other change (waiting tasks stay last), so
+            // Same rules as every other change (urgent first, waiting last), so
             // the list shows the order that is saved
             Tasks.tidy(doc);
             refresh();

@@ -155,6 +155,19 @@ The Queue can be split into groups, one per project. In the file a group is a
 - Dragging reorders within a group. A task moved to Today shows its group as a
   small label and returns to the same group when moved back.
 
+### Urgent tasks
+
+Right-click a task → **Mark as urgent** for work that has to be done first:
+
+- it gets a red *urgent* label and moves to the top of its list or group;
+- *Pull next* takes an urgent Queue task before the others;
+- a task can be urgent and waiting together: it then stays at the bottom with
+  both labels.
+
+Right-click → **Not urgent anymore** takes the mark away; finishing the task
+does too. In the file it is the `urgent` tag:
+`- [ ] fix login <!-- urgent -->`.
+
 ### Waiting tasks
 
 Right-click a task → **Mark as waiting** for work that is on hold (waiting for a
