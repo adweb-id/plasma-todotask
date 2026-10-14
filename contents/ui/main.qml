@@ -58,6 +58,8 @@ PlasmoidItem {
     property int dailyCount: 0
     // todayCount and queueCount leave out waiting tasks; these count them too
     property int todayTotal: 0
+    // The date of the Today list (yyyy-MM-dd), for the header
+    property string dayShown: ""
     property int todayWaiting: 0
     property int queueTotal: 0
 
@@ -338,6 +340,7 @@ PlasmoidItem {
 
     function refresh() {
         const now = today();
+        dayShown = doc.todayDate;
         todayTotal = doc.today.length;
         todayCount = Tasks.activeCount(doc.today);
         todayWaiting = todayTotal - todayCount;
@@ -797,6 +800,8 @@ PlasmoidItem {
         repeat: true
         onTriggered: {
             if (root.doc && Tasks.normalize(root.doc, root.today(), Plasmoid.configuration.carryOver, root.dailyDays())) {
+                // Same order as after any other change: urgent first, waiting last
+                Tasks.tidy(root.doc);
                 root.refresh();
                 root.save();
                 root.archiveOld();
