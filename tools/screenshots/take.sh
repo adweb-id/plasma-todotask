@@ -16,7 +16,28 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 OUT="$ROOT/docs/screenshots"
 ID="com.adweb.todotask.screenshots"
 WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK"' EXIT
+# Every process of the throw-away session carries this mark in its environment
+MARK="todotask-shot-$$"
+
+# The session's own D-Bus starts services (kactivitymanagerd, ksecretd,
+# xdg-desktop-portal-kde ...) that can outlive it as orphan processes.
+# Ends every process that carries the mark. Your own session never has it.
+sweep() {
+    for sig in TERM KILL; do
+        found=0
+        for dir in /proc/[0-9]*; do
+            pid=${dir#/proc/}
+            # Other users' processes cannot be read, and are not ours anyway
+            [ -r "$dir/environ" ] || continue
+            if tr '\0' '\n' 2>/dev/null < "$dir/environ" | grep -qx "TODOTASK_SANDBOX=$MARK"; then
+                kill -s "$sig" "$pid" 2>/dev/null && found=1
+            fi
+        done
+        [ "$found" = 1 ] || break
+        sleep 1
+    done
+}
+trap 'sweep; rm -rf "$WORK"' EXIT
 mkdir -p "$OUT"
 
 TODAY=$(date +%F)
@@ -63,9 +84,10 @@ shoot() {
     rm -f "$OUT/$name.png"
     printf '#!/bin/sh\nexec timeout 30 plasmawindowed "%s"\n' "$ID" > "$WORK/session.sh"
     chmod +x "$WORK/session.sh"
-    XDG_CONFIG_HOME="$WORK/cfg" timeout 60 dbus-run-session -- kwin_wayland --virtual --no-lockscreen \
+    TODOTASK_SANDBOX="$MARK" XDG_CONFIG_HOME="$WORK/cfg" timeout 60 dbus-run-session -- kwin_wayland --virtual --no-lockscreen \
         --no-global-shortcuts --socket "todotask-shot-$$" --width 1200 --height 1000 \
         --exit-with-session "$WORK/session.sh" >"$WORK/log" 2>&1 || true
+    sweep
     if [ -s "$OUT/$name.png" ]; then
         python3 "$HERE/frame.py" "$OUT/$name.png" "/usr/share/color-schemes/$colours.colors" "$WORK/log"
         rm -f "$OUT/$name.menu.png"
