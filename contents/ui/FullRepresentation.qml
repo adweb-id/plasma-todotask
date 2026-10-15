@@ -75,11 +75,15 @@ PlasmaExtras.Representation {
             // An add or remove cut short must not leave a row faded or shrunk
             NumberAnimation { properties: "opacity,scale"; to: 1; duration: Kirigami.Units.shortDuration }
         }
+        // A move can cut an add short as well (a new day: the Daily copies go
+        // in, then an urgent task moves above them), so these restore the row too
         move: Transition {
             NumberAnimation { property: "y"; duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { properties: "opacity,scale"; to: 1; duration: Kirigami.Units.shortDuration }
         }
         moveDisplaced: Transition {
             NumberAnimation { property: "y"; duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { properties: "opacity,scale"; to: 1; duration: Kirigami.Units.shortDuration }
         }
 
         Behavior on implicitHeight {
@@ -95,6 +99,7 @@ PlasmaExtras.Representation {
         property int count: 0
         property bool foldable: false
         property bool open: true
+        property string tip: ""
 
         Layout.fillWidth: true
         Layout.leftMargin: Kirigami.Units.largeSpacing
@@ -107,6 +112,10 @@ PlasmaExtras.Representation {
 
         Accessible.role: foldable ? Accessible.Button : Accessible.Heading
         Accessible.name: title
+
+        QQC2.ToolTip.text: tip
+        QQC2.ToolTip.visible: tip !== "" && hovered
+        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
 
         Behavior on opacity {
             NumberAnimation { duration: Kirigami.Units.shortDuration }
@@ -198,7 +207,9 @@ PlasmaExtras.Representation {
                         }
 
                         PlasmaComponents3.Label {
-                            readonly property string date: Qt.formatDate(new Date(), "ddd d MMM")
+                            // The day of the Today list, so it follows a new day
+                            readonly property string date: Qt.formatDate(
+                                full.widget.dayShown !== "" ? new Date(full.widget.dayShown + "T00:00:00") : new Date(), "ddd d MMM")
                             text: {
                                 const left = full.widget.todayCount > 0 ? i18n("%1 left", full.widget.todayCount) : i18n("all done");
                                 return full.widget.todayWaiting > 0
@@ -620,6 +631,7 @@ PlasmaExtras.Representation {
             SectionHeading {
                 visible: full.widget.dailyCount > 0
                 title: i18n("Daily")
+                tip: i18n("Added to Today every work day. Date variables are filled in for the day: {date}, {date-1}, {date:dd/MM/yyyy}")
                 count: full.widget.dailyCount
                 foldable: true
                 open: !full.widget.dailyCollapsed

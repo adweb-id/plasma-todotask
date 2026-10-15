@@ -32,15 +32,38 @@ function weekday(date) {
     return new Date(Date.parse(date + "T00:00:00Z")).getUTCDay();
 }
 
-// A fresh Today copy of a Daily template task
+// Fills in the date variables of a Daily template, for the day of the copy:
+//   {date}             2026-10-13
+//   {date-1} {date+7}  that many days earlier or later
+//   {date:dd/MM/yyyy}  another format: yyyy yy MM M dd d, anything else as typed
+//   {date-1:yyyy-MM}   both
+// Anything else in braces is left alone.
+function fillDates(text, today) {
+    return String(text).replace(/\{date([+-]\d{1,4})?(?::([^{}]+))?\}/g, function (all, shift, format) {
+        var day = new Date(Date.parse(today + "T00:00:00Z") + Number(shift || 0) * 86400000);
+        if (isNaN(day.getTime())) {
+            return all;
+        }
+        var y = String(day.getUTCFullYear());
+        var m = day.getUTCMonth() + 1;
+        var d = day.getUTCDate();
+        var parts = { yyyy: y, yy: y.slice(-2), MM: (m < 10 ? "0" : "") + m, M: String(m), dd: (d < 10 ? "0" : "") + d, d: String(d) };
+        return (format || "yyyy-MM-dd").replace(/yyyy|yy|MM|M|dd|d/g, function (token) { return parts[token]; });
+    });
+}
+
+// A fresh Today copy of a Daily template task, its date variables filled in
 function dailyCopy(template, today) {
+    function fill(lines) {
+        return (lines || []).map(function (line) { return fillDates(line, today); });
+    }
     return {
-        text: template.text,
+        text: fillDates(template.text, today),
         done: false,
         since: today,
         daily: true,
-        notes: (template.notes || []).slice(),
-        subs: template.subs.map(function (s) { return { text: s.text, done: false, notes: (s.notes || []).slice() }; })
+        notes: fill(template.notes),
+        subs: template.subs.map(function (s) { return { text: fillDates(s.text, today), done: false, notes: fill(s.notes) }; })
     };
 }
 
@@ -104,8 +127,8 @@ function add(doc, listName, text, today, group) {
 // ---- Queue groups ("### SRSX" in the file) ------------------------------
 
 // Keeps the Queue in file order: tasks without a group first, then group by
-// group, each keeping its own order, waiting tasks at the end of their group
-// (and of Today). Every change runs it, so the list views
+// group, each keeping its own order, urgent tasks at the start of their group
+// and waiting tasks at the end (the same in Today). Every change runs it, so the list views
 // can rely on the tasks of one group being next to each other.
 function tidy(doc) {
     var buckets = { "": [] };
@@ -215,6 +238,7 @@ function complete(doc, index, today) {
     }
     task.done = true;
     task.waiting = false;
+    task.urgent = false;
     task.subs.forEach(function (s) { s.done = true; });
     doneGroup(doc, today).items.unshift(task);
 }
@@ -296,13 +320,24 @@ function moveToEdge(doc, listName, index, toTop) {
     }
 }
 
-// The first Queue task that is not waiting
+// The first urgent Queue task, or else the first one that is not waiting
 function pullNext(doc, today) {
+    var pick = -1;
     for (var i = 0; i < doc.queue.length; i++) {
-        if (!doc.queue[i].waiting) {
-            move(doc, "queue", i, today);
-            return;
+        var task = doc.queue[i];
+        if (task.waiting) {
+            continue;
         }
+        if (task.urgent) {
+            pick = i;
+            break;
+        }
+        if (pick === -1) {
+            pick = i;
+        }
+    }
+    if (pick !== -1) {
+        move(doc, "queue", pick, today);
     }
 }
 
@@ -315,9 +350,20 @@ function setWaiting(doc, listName, index, on) {
     }
 }
 
-// Tasks that can be worked on first, waiting ones after, each keeping its order
+// ---- urgent --------------------------------------------------------------
+
+function setUrgent(doc, listName, index, on) {
+    var task = doc[listName][index];
+    if (task) {
+        task.urgent = !!on;
+    }
+}
+
+// Urgent tasks first, then the others that can be worked on, waiting ones
+// last (urgent or not), each keeping its order
 function activeFirst(list) {
-    return list.filter(function (t) { return !t.waiting; })
+    return list.filter(function (t) { return !t.waiting && t.urgent; })
+               .concat(list.filter(function (t) { return !t.waiting && !t.urgent; }))
                .concat(list.filter(function (t) { return t.waiting; }));
 }
 

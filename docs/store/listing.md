@@ -47,10 +47,12 @@ EVERY DAY
 - Tick a task: it is struck through and moves to "Done today"; untick to bring it back
 - Unfinished tasks stay in Today on a new day, marked "yesterday"
 - Daily routine: tasks in the Daily list are added to the top of Today every work day
+- Date variables in Daily tasks: {date}, {date-1} or {date:dd/MM/yyyy} become the date of the day, handy for a daily query or report
 
 ORGANISE
 
 - Project groups in the Queue: fold them, add straight to a group, rename and reorder
+- Urgent mark for work that comes first: red label, kept at the top, taken first by "Pull next"
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
@@ -88,6 +90,12 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
+
+## Changelog for 0.3.0
+
+- Urgent mark: right-click a task, Mark as urgent. It gets a red label, moves to the top of its list or group, and Pull next takes it first. Finishing the task removes the mark.
+- Date variables in Daily tasks: {date}, {date-1}, {date+7} or {date:dd/MM/yyyy} in a Daily task, its subtasks or its notes become the date of the day in the copy added to Today. Handy for a daily query or report.
+- On a new day the Daily copies no longer stay half transparent, and the header shows the new date without restarting Plasma
 
 ## Changelog for 0.2.2
 

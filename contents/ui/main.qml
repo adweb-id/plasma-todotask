@@ -58,6 +58,8 @@ PlasmoidItem {
     property int dailyCount: 0
     // todayCount and queueCount leave out waiting tasks; these count them too
     property int todayTotal: 0
+    // The date of the Today list (yyyy-MM-dd), for the header
+    property string dayShown: ""
     property int todayWaiting: 0
     property int queueTotal: 0
 
@@ -338,6 +340,7 @@ PlasmoidItem {
 
     function refresh() {
         const now = today();
+        dayShown = doc.todayDate;
         todayTotal = doc.today.length;
         todayCount = Tasks.activeCount(doc.today);
         todayWaiting = todayTotal - todayCount;
@@ -355,6 +358,7 @@ PlasmoidItem {
             carried: !task.daily && task.since !== "" && task.since < now,
             daily: !!task.daily,
             waiting: !!task.waiting,
+            urgent: !!task.urgent,
             group: task.group || "",
             subsJson: JSON.stringify(task.subs),
             subDone: Tasks.subDone(task),
@@ -366,6 +370,7 @@ PlasmoidItem {
             carried: false,
             daily: false,
             waiting: !!task.waiting,
+            urgent: !!task.urgent,
             group: task.group || "",
             subsJson: JSON.stringify(task.subs),
             subDone: Tasks.subDone(task),
@@ -623,6 +628,12 @@ PlasmoidItem {
                on ? i18n("Waiting: %1", name) : i18n("Back to work: %1", name));
     }
 
+    function setUrgent(listName, index, on) {
+        const name = doc[listName][index] ? doc[listName][index].text : "";
+        change(d => Tasks.setUrgent(d, listName, index, on),
+               on ? i18n("Urgent: %1", name) : i18n("Not urgent: %1", name));
+    }
+
     function moveToEdge(listName, index, toTop) {
         change(d => Tasks.moveToEdge(d, listName, index, toTop));
     }
@@ -682,7 +693,7 @@ PlasmoidItem {
         }
         if (ordered.length === doc[listName].length) {
             doc[listName] = ordered;
-            // Same rules as every other change (waiting tasks stay last), so
+            // Same rules as every other change (urgent first, waiting last), so
             // the list shows the order that is saved
             Tasks.tidy(doc);
             refresh();
@@ -789,6 +800,8 @@ PlasmoidItem {
         repeat: true
         onTriggered: {
             if (root.doc && Tasks.normalize(root.doc, root.today(), Plasmoid.configuration.carryOver, root.dailyDays())) {
+                // Same order as after any other change: urgent first, waiting last
+                Tasks.tidy(root.doc);
                 root.refresh();
                 root.save();
                 root.archiveOld();

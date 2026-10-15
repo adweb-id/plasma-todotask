@@ -155,6 +155,19 @@ The Queue can be split into groups, one per project. In the file a group is a
 - Dragging reorders within a group. A task moved to Today shows its group as a
   small label and returns to the same group when moved back.
 
+### Urgent tasks
+
+Right-click a task → **Mark as urgent** for work that has to be done first:
+
+- it gets a red *urgent* label and moves to the top of its list or group;
+- *Pull next* takes an urgent Queue task before the others;
+- a task can be urgent and waiting together: it then stays at the bottom with
+  both labels.
+
+Right-click → **Not urgent anymore** takes the mark away; finishing the task
+does too. In the file it is the `urgent` tag:
+`- [ ] fix login <!-- urgent -->`.
+
 ### Waiting tasks
 
 Right-click a task → **Mark as waiting** for work that is on hold (waiting for a
@@ -177,6 +190,20 @@ Today, marked with 🔁, and ticked like any other task.
 - Right-click a task → **Repeat every work day** to make it daily; right-click a copy → **Stop repeating**.
 - An unfinished copy from yesterday is replaced by today's, never doubled, and never marked "yesterday".
 - Work days are Monday to Friday by default; change them in the settings.
+
+A Daily task can hold **date variables**. They are filled in when the copy for
+the day is made, in the task, its subtasks and its notes. The task in the
+Daily list keeps the variable.
+
+| Written in the Daily task | In today's copy (on 13 Oct 2026) |
+| --- | --- |
+| `{date}` | `2026-10-13` |
+| `{date-1}`, `{date+7}` | `2026-10-12`, `2026-10-20` |
+| `{date:dd/MM/yyyy}` | `13/10/2026` |
+| `{date-1:yyyy-MM}` | `2026-10` |
+
+The format takes `yyyy`, `yy`, `MM`, `M`, `dd` and `d`. For example a query
+kept as a subtask: `SELECT … WHERE created_at LIKE '{date}%'`.
 
 ### A new day
 

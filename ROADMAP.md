@@ -14,10 +14,11 @@ items can change; suggestions are welcome in the
 | 0.2.0 | Workspaces: separate lists (e.g. Work and Personal), each in its own file; the task path can be a folder; new default location `Documents/todotask/todo.md` |
 | 0.2.1 | Switch workspace from the widget's right-click menu |
 | 0.2.2 | Bold and italic from a small bar over the selected text, or Ctrl+B / Ctrl+I; one editor open at a time |
+| 0.3.0 | Urgent mark (red label, top of its list, taken first by Pull next); date variables in Daily tasks such as `{date}` and `{date:dd/MM/yyyy}` |
 
 ## Planned
 
-### 0.3
+### 0.4
 
 - **Auto-reload**: pick up changes made to the task file in another editor right
   away, without reopening the popup or pressing reload.
@@ -30,7 +31,7 @@ items can change; suggestions are welcome in the
 - **Delete confirmation setting**: switch the confirmation off when Undo is
   enough for you.
 
-### 0.4
+### 0.5
 
 - **Copy report**: copy "done yesterday" plus today's plan in one click, for a
   daily report.
@@ -38,7 +39,7 @@ items can change; suggestions are welcome in the
 - **Stale marker**: show how long an unfinished task has been carried over
   ("3 days") instead of only "yesterday".
 
-### 0.5
+### 0.6
 
 - **Search**: filter tasks in all lists as you type.
 - **Keyboard**: a shortcut to open the popup with the input focused, arrow
@@ -56,6 +57,6 @@ items can change; suggestions are welcome in the
 
 ## Not planned
 
-To keep the widget small and simple: due dates and reminders, priorities,
-time tracking, and accounts or online services. Your tasks stay in plain
+To keep the widget small and simple: due dates and reminders, priority levels
+(one *urgent* mark is all there is), time tracking, and accounts or online services. Your tasks stay in plain
 Markdown files on your own disk.

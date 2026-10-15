@@ -21,6 +21,7 @@ Item {
     required property bool daily
     required property string group
     required property bool waiting
+    required property bool urgent
     required property string subsJson
     required property int subDone
     required property int subTotal
@@ -446,6 +447,36 @@ Item {
                     }
                 }
 
+                // To be done first
+                Rectangle {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
+                    visible: row.urgent
+                    implicitWidth: urgentRow.implicitWidth + Kirigami.Units.largeSpacing
+                    implicitHeight: urgentRow.implicitHeight + 2
+                    radius: height / 2
+                    color: row.alpha(Kirigami.Theme.negativeTextColor, 0.18)
+
+                    RowLayout {
+                        id: urgentRow
+                        anchors.centerIn: parent
+                        spacing: 3
+
+                        Glyph {
+                            implicitWidth: Math.round(Kirigami.Units.iconSizes.small * 0.75)
+                            implicitHeight: implicitWidth
+                            name: "urgent"
+                            color: Kirigami.Theme.negativeTextColor
+                        }
+
+                        PlasmaComponents3.Label {
+                            text: i18n("urgent")
+                            font: Kirigami.Theme.smallFont
+                            color: Kirigami.Theme.negativeTextColor
+                        }
+                    }
+                }
+
                 // On hold
                 Rectangle {
                     Layout.alignment: Qt.AlignTop
@@ -576,6 +607,12 @@ Item {
                     iconName: "plus"
                     text: i18n("Add subtask")
                     onClicked: row.startAddSub()
+                }
+                MenuEntry {
+                    visible: !row.isTemplate
+                    iconName: "urgent"
+                    text: row.urgent ? i18n("Not urgent anymore") : i18n("Mark as urgent")
+                    onClicked: row.widget.setUrgent(row.listName, row.index, !row.urgent)
                 }
                 MenuEntry {
                     visible: !row.isTemplate

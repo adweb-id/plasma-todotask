@@ -323,6 +323,14 @@ KCM.SimpleKCM {
             }
         }
 
+        QQC2.Label {
+            text: i18n("Daily tasks can hold date variables, filled in for the day: {date}, {date-1}, {date:dd/MM/yyyy}.")
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            wrapMode: Text.Wrap
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
+        }
+
         QQC2.SpinBox {
             id: archiveSpin
             Kirigami.FormData.label: i18n("Archive finished tasks after (days):")
