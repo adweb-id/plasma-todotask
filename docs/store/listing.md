@@ -91,6 +91,12 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
 
+## Changelog for 0.3.0
+
+- Urgent mark: right-click a task, Mark as urgent. It gets a red label, moves to the top of its list or group, and Pull next takes it first. Finishing the task removes the mark.
+- Date variables in Daily tasks: {date}, {date-1}, {date+7} or {date:dd/MM/yyyy} in a Daily task, its subtasks or its notes become the date of the day in the copy added to Today. Handy for a daily query or report.
+- On a new day the Daily copies no longer stay half transparent, and the header shows the new date without restarting Plasma
+
 ## Changelog for 0.2.2
 
 - Bold and italic without typing asterisks: select text while adding or editing a task and click B or I in the small bar above it, or press Ctrl+B / Ctrl+I; click again to remove the formatting
