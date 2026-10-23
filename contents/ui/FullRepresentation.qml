@@ -105,7 +105,7 @@ PlasmaExtras.Representation {
         Layout.leftMargin: Kirigami.Units.largeSpacing
         Layout.rightMargin: Kirigami.Units.largeSpacing
         Layout.topMargin: Kirigami.Units.largeSpacing
-        hoverEnabled: foldable
+        hoverEnabled: foldable || tip !== ""
         focusPolicy: foldable ? Qt.TabFocus : Qt.NoFocus
         padding: Kirigami.Units.smallSpacing
         opacity: foldable && hovered ? 1 : 0.75
@@ -192,7 +192,8 @@ PlasmaExtras.Representation {
                 Layout.topMargin: Kirigami.Units.smallSpacing
                 spacing: Kirigami.Units.smallSpacing
 
-                readonly property int total: full.widget.todayCount + full.widget.doneCount
+                // Tasks in review are not done yet: they count in the total only
+                readonly property int total: full.widget.todayCount + full.widget.reviewCount + full.widget.doneCount
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -211,10 +212,15 @@ PlasmaExtras.Representation {
                             readonly property string date: Qt.formatDate(
                                 full.widget.dayShown !== "" ? new Date(full.widget.dayShown + "T00:00:00") : new Date(), "ddd d MMM")
                             text: {
-                                const left = full.widget.todayCount > 0 ? i18n("%1 left", full.widget.todayCount) : i18n("all done");
-                                return full.widget.todayWaiting > 0
-                                       ? i18n("%1 · %2 · %3 waiting", date, left, full.widget.todayWaiting)
-                                       : i18n("%1 · %2", date, left);
+                                const parts = [date, full.widget.todayCount > 0 ? i18n("%1 left", full.widget.todayCount)
+                                               : full.widget.reviewCount > 0 ? i18n("nothing left") : i18n("all done")];
+                                if (full.widget.reviewCount > 0) {
+                                    parts.push(i18n("%1 in review", full.widget.reviewCount));
+                                }
+                                if (full.widget.todayWaiting > 0) {
+                                    parts.push(i18n("%1 waiting", full.widget.todayWaiting));
+                                }
+                                return parts.join(" · ");
                             }
                             font: Kirigami.Theme.smallFont
                             opacity: 0.7
@@ -500,15 +506,17 @@ PlasmaExtras.Representation {
                     spacing: Kirigami.Units.largeSpacing
 
                     readonly property bool allDone: full.widget.queueTotal + full.widget.doneCount > 0
+                    readonly property bool inReview: full.widget.reviewCount > 0
 
                     Glyph {
-                        name: emptyRow.allDone ? "tick" : "empty"
-                        color: emptyRow.allDone ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.textColor
+                        name: emptyRow.allDone || emptyRow.inReview ? "tick" : "empty"
+                        color: emptyRow.allDone || emptyRow.inReview ? Kirigami.Theme.positiveTextColor : Kirigami.Theme.textColor
                     }
 
                     PlasmaComponents3.Label {
                         Layout.fillWidth: true
-                        text: emptyRow.allDone ? i18n("All done for today") : i18n("Nothing to do yet")
+                        text: emptyRow.inReview ? i18n("Nothing left, the rest is in review")
+                              : emptyRow.allDone ? i18n("All done for today") : i18n("Nothing to do yet")
                         wrapMode: Text.Wrap
                     }
 
@@ -520,6 +528,22 @@ PlasmaExtras.Representation {
                         onClicked: full.widget.pullNext()
                     }
                 }
+            }
+
+            // ---- In review: finished in Today, ticked again once it is checked
+            SectionHeading {
+                visible: full.widget.reviewCount > 0
+                title: i18n("In review")
+                count: full.widget.reviewCount
+                tip: i18n("Tick a task here once it has been checked. Right-click → Back to Today to work on it again.")
+            }
+
+            TaskList {
+                Layout.fillWidth: true
+                visible: full.widget.reviewCount > 0
+                widget: full.widget
+                listName: "review"
+                model: full.widget.reviewModel
             }
 
             // ---- Done today (folded by default)

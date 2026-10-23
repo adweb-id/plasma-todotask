@@ -92,6 +92,16 @@ function normalize(doc, today, carryOver, dailyDays) {
     }
     doc.today = open;
 
+    // In review stays as it is on a new day; one ticked in the file is done
+    doc.review = doc.review.filter(function (t) {
+        if (t.done) {
+            doneGroup(doc, doc.todayDate).items.push(t);
+            changed = true;
+            return false;
+        }
+        return true;
+    });
+
     if (doc.todayDate !== today) {
         doc.today = doc.today.filter(function (t) { return !t.daily; });
         if (!carryOver) {
@@ -167,6 +177,7 @@ function setGroup(doc, listName, index, group) {
 
 function eachTask(doc, fn) {
     doc.today.forEach(fn);
+    doc.review.forEach(fn);
     doc.queue.forEach(fn);
     doc.done.forEach(function (g) { g.items.forEach(fn); });
 }
@@ -231,16 +242,47 @@ function groupCounts(doc) {
     return counts;
 }
 
-function complete(doc, index, today) {
-    var task = doc.today.splice(index, 1)[0];
-    if (!task) {
-        return;
-    }
+function finish(doc, task, today) {
     task.done = true;
     task.waiting = false;
     task.urgent = false;
     task.subs.forEach(function (s) { s.done = true; });
     doneGroup(doc, today).items.unshift(task);
+}
+
+function complete(doc, index, today) {
+    var task = doc.today.splice(index, 1)[0];
+    if (task) {
+        finish(doc, task, today);
+    }
+}
+
+// ---- in review: finished in Today, waiting for a check --------------------
+
+// Today -> end of In review. Waiting and urgent no longer apply.
+function toReview(doc, index) {
+    var task = doc.today.splice(index, 1)[0];
+    if (task) {
+        task.waiting = false;
+        task.urgent = false;
+        doc.review.push(task);
+    }
+}
+
+// In review -> Done
+function completeReview(doc, index, today) {
+    var task = doc.review.splice(index, 1)[0];
+    if (task) {
+        finish(doc, task, today);
+    }
+}
+
+// In review -> top of Today, to be worked on again
+function backToToday(doc, index) {
+    var task = doc.review.splice(index, 1)[0];
+    if (task) {
+        doc.today.unshift(task);
+    }
 }
 
 function uncomplete(doc, index, today) {

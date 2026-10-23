@@ -27,6 +27,12 @@ Item {
     required property int subTotal
 
     readonly property bool isToday: listName === "today"
+    // Finished in Today, waiting for a check: ticked again to finish it
+    readonly property bool isReview: listName === "review"
+    // Rows with check boxes (the task and its subtasks)
+    readonly property bool checkable: isToday || isReview
+    // Shift+click on the box: done at once, without the review step
+    property bool skipReview: false
     readonly property bool isTemplate: listName === "daily"
     readonly property var subs: JSON.parse(subsJson)
 
@@ -117,8 +123,9 @@ Item {
         }
     }
 
-    function complete() {
+    function complete(skip) {
         if (!completing) {
+            skipReview = skip === true;
             completing = true;
             completeTimer.start();
         }
@@ -149,7 +156,13 @@ Item {
     Timer {
         id: completeTimer
         interval: Kirigami.Units.longDuration * 2 + Kirigami.Units.shortDuration
-        onTriggered: row.widget.completeTask(row.index)
+        onTriggered: {
+            if (row.isReview) {
+                row.widget.completeReview(row.index);
+            } else {
+                row.widget.completeTask(row.index, row.skipReview);
+            }
+        }
     }
 
     // The first Queue row of a group carries the group's heading. (The list's
@@ -216,9 +229,9 @@ Item {
                 TaskCheck {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
-                    visible: row.isToday
+                    visible: row.checkable
                     on: row.completing
-                    onClicked: row.complete()
+                    onClicked: row.complete(shift)
                     Accessible.name: i18n("Complete %1", row.taskText)
                 }
 
@@ -227,7 +240,7 @@ Item {
                 Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
-                    visible: !row.isToday
+                    visible: !row.checkable
                     implicitWidth: row.checkSize
                     implicitHeight: row.checkSize
 
@@ -385,8 +398,14 @@ Item {
                             IconButton {
                                 visible: !row.isTemplate
                                 iconName: row.isToday ? "down" : "up"
-                                tip: row.isToday ? i18n("Move to Queue") : i18n("Move to Today")
-                                onClicked: row.widget.moveTask(row.listName, row.index)
+                                tip: row.isToday ? i18n("Move to Queue") : row.isReview ? i18n("Back to Today") : i18n("Move to Today")
+                                onClicked: {
+                                    if (row.isReview) {
+                                        row.widget.backToToday(row.index);
+                                    } else {
+                                        row.widget.moveTask(row.listName, row.index);
+                                    }
+                                }
                             }
 
                             // Used often enough to be one click away
@@ -512,7 +531,7 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
                     Layout.maximumWidth: Kirigami.Units.gridUnit * 6
-                    visible: row.isToday && row.group !== ""
+                    visible: row.checkable && row.group !== ""
                     implicitWidth: groupLabel.implicitWidth + Kirigami.Units.largeSpacing
                     implicitHeight: groupLabel.implicitHeight + 2
                     radius: height / 2
@@ -575,7 +594,19 @@ Item {
                 onAboutToShow: row.groupPickerAt = Qt.point(x + implicitWidth, y)
 
                 MenuEntry {
-                    visible: !row.isTemplate
+                    visible: row.isToday && row.widget.reviewStep
+                    iconName: "tick"
+                    text: i18n("Done, skip review")
+                    onClicked: row.complete(true)
+                }
+                MenuEntry {
+                    visible: row.isReview
+                    iconName: "up"
+                    text: i18n("Back to Today")
+                    onClicked: row.widget.backToToday(row.index)
+                }
+                MenuEntry {
+                    visible: !row.isTemplate && !row.isReview
                     iconName: row.isToday ? "down" : "up"
                     text: row.isToday ? i18n("Move to Queue") : i18n("Move to Today")
                     onClicked: row.widget.moveTask(row.listName, row.index)
@@ -609,13 +640,13 @@ Item {
                     onClicked: row.startAddSub()
                 }
                 MenuEntry {
-                    visible: !row.isTemplate
+                    visible: !row.isTemplate && !row.isReview
                     iconName: "urgent"
                     text: row.urgent ? i18n("Not urgent anymore") : i18n("Mark as urgent")
                     onClicked: row.widget.setUrgent(row.listName, row.index, !row.urgent)
                 }
                 MenuEntry {
-                    visible: !row.isTemplate
+                    visible: !row.isTemplate && !row.isReview
                     iconName: row.waiting ? "play" : "pause"
                     text: row.waiting ? i18n("Not waiting anymore") : i18n("Mark as waiting")
                     onClicked: row.widget.setWaiting(row.listName, row.index, !row.waiting)
@@ -627,13 +658,13 @@ Item {
                     onClicked: groupPicker.openAt(row, groupPickerAt)
                 }
                 MenuEntry {
-                    visible: !row.isTemplate && !row.daily
+                    visible: !row.isTemplate && !row.isReview && !row.daily
                     iconName: "repeat"
                     text: i18n("Repeat every work day")
                     onClicked: row.widget.makeDaily(row.listName, row.index)
                 }
                 MenuEntry {
-                    visible: row.daily
+                    visible: row.daily && !row.isReview
                     iconName: "norepeat"
                     text: i18n("Stop repeating")
                     onClicked: row.widget.stopDaily(row.index)
@@ -774,7 +805,7 @@ Item {
                         Layout.alignment: Qt.AlignTop
                         Layout.topMargin: 1
                         implicitWidth: Math.round(row.checkSize * 0.85)
-                        visible: row.isToday
+                        visible: row.checkable
                         on: subRow.modelData.done
                         onClicked: row.widget.toggleSub(row.listName, row.index, subRow.index)
                         Accessible.name: i18n("Complete %1", subRow.modelData.text)
@@ -782,7 +813,7 @@ Item {
 
                     Item {
                         Layout.alignment: Qt.AlignTop
-                        visible: !row.isToday
+                        visible: !row.checkable
                         implicitWidth: Math.round(row.checkSize * 0.85)
                         implicitHeight: subLabel.implicitHeight > 0 ? Math.min(subLabel.implicitHeight, implicitWidth * 1.4) : implicitWidth
 

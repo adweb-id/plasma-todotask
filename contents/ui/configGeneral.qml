@@ -11,6 +11,7 @@ KCM.SimpleKCM {
     property string cfg_newTaskTarget
     property alias cfg_popupWidth: widthSpin.value
     property alias cfg_carryOver: carryCheck.checked
+    property alias cfg_reviewStep: reviewCheck.checked
     property alias cfg_archiveDays: archiveSpin.value
     property string cfg_dailyDays
     // The workspace rows being edited. One row is stored the old way, as
@@ -298,6 +299,20 @@ KCM.SimpleKCM {
             id: carryCheck
             Kirigami.FormData.label: i18n("New day:")
             text: i18n("Keep unfinished tasks in Today")
+        }
+
+        QQC2.CheckBox {
+            id: reviewCheck
+            Kirigami.FormData.label: i18n("Ticking a task:")
+            text: i18n("Send it to In review first")
+        }
+
+        QQC2.Label {
+            text: i18n("A task ticked in Today waits in In review until it is ticked again there. Shift+click the box, or right-click → Done, skip review, to finish one at once.")
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            wrapMode: Text.Wrap
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
         }
 
         // Work days for the Daily tasks, Monday first; stored as Date.getDay() numbers

@@ -7,10 +7,11 @@
 //   todayDate: "2026-10-06",
 //   daily:     [task]   template, copied to the top of Today every work day
 //   today:     [task], queue: [task],
+//   review:    [task]   finished in Today, waiting for a check ("## In review")
 //   groups:    ["SRSX", "Livechat"]   project groups of the Queue ("### SRSX"), in order;
 //              queue tasks without a group come first
 //   done:      [{ date: "2026-10-06", items: [task] }],   newest first
-//   extra:     { daily: [], today: [], queue: [], done: [] }   lines between a
+//   extra:     { daily: [], today: [], review: [], queue: [], done: [] }   lines between a
 //              section heading and its first task, written back in that place
 //   groupHead: { "SRSX": [lines between "### SRSX" and its first task] },
 //   others:    [lines of any other "#"/"##" section, kept as they are]
@@ -35,11 +36,12 @@ function emptyDoc(today) {
         todayDate: today,
         daily: [],
         today: [],
+        review: [],
         queue: [],
         done: [],
         groups: [],
         groupHead: {},
-        extra: { daily: [], today: [], queue: [], done: [] },
+        extra: { daily: [], today: [], review: [], queue: [], done: [] },
         others: []
     };
 }
@@ -156,7 +158,7 @@ function parse(text, today) {
         var m;
 
         if (section === "other") {
-            if (!/^##\s+(Today|Daily|Queue|Done)\b/i.test(line)) {
+            if (!/^##\s+(Today|Daily|In review|Queue|Done)\b/i.test(line)) {
                 doc.others.push(line);
                 continue;
             }
@@ -181,6 +183,10 @@ function parse(text, today) {
         }
         if (/^##\s+Daily\s*$/i.test(line)) {
             startSection("daily");
+            continue;
+        }
+        if (/^##\s+In review\s*$/i.test(line)) {
+            startSection("review");
             continue;
         }
         if (/^##\s+Queue\s*$/i.test(line)) {
@@ -306,6 +312,10 @@ function serialize(doc) {
 
     section("## Daily", doc.extra.daily, doc.daily, false);
     section("## Today (" + doc.todayDate + ")", doc.extra.today, doc.today, true);
+    // Only when in use, so files of people who never use it stay as they were
+    if (doc.review.length > 0 || doc.extra.review.length > 0) {
+        section("## In review", doc.extra.review, doc.review, true);
+    }
 
     // Queue: tasks without a group, then one "###" block per group
     out.push("## Queue");

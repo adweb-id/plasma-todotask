@@ -155,6 +155,24 @@ The Queue can be split into groups, one per project. In the file a group is a
 - Dragging reorders within a group. A task moved to Today shows its group as a
   small label and returns to the same group when moved back.
 
+### In review
+
+For work that has to be checked (QC, a review, a confirmation) before it
+counts as done. Turn on *Ticking a task: Send it to In review first* in the
+settings. Then:
+
+1. Ticking a task in Today moves it to the **In review** section, below Today.
+2. Ticking it again in In review moves it to *Done today*.
+3. Right-click → **Back to Today** when it needs more work.
+
+A task that needs no check skips the step: Shift+click its box, or
+right-click → **Done, skip review**. Tasks in review count in the total of the
+progress bar but not as done, and not in the panel badge or "x left" (the
+header says e.g. "2 left · 1 in review"). They stay in In review on a new day,
+so a Daily copy that is still being checked is not replaced. In the file they
+are under `## In review`, right after Today. The section is only written while
+it has tasks.
+
 ### Urgent tasks
 
 Right-click a task → **Mark as urgent** for work that has to be done first:
@@ -275,6 +293,7 @@ Right-click the widget → *Configure Todo Task…*
 | Enter adds a task to | Queue | Shift+Enter always adds to the other list |
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
+| Ticking a task: send it to In review first | off | A tick in Today moves the task to In review, a tick there finishes it |
 | Daily tasks on | Mon–Fri | Work days the Daily tasks are added to Today |
 | Archive finished tasks after (days) | 7 | 0 keeps everything in `todo.md` |
 
