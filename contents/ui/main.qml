@@ -536,6 +536,27 @@ PlasmoidItem {
         }
     }
 
+    // What was done on the last earlier day, today, what is in review and
+    // what is planned, for a stand-up or a daily report
+    function copyReport() {
+        if (!doc) {
+            return;
+        }
+        const text = Store.reportText(doc, today(), {
+            done: date => i18nc("report heading, %1 is a date", "Done %1:", date),
+            doneToday: i18nc("report heading", "Done today:"),
+            review: i18nc("report heading", "In review:"),
+            today: i18nc("report heading", "Today:")
+        }, date => Qt.formatDate(new Date(date + "T00:00:00"), "ddd d MMM"), {
+            waiting: i18nc("report note after a task", "waiting"),
+            urgent: i18nc("report note after a task", "urgent"),
+            done: i18nc("report note after a subtask", "done")
+        });
+        if (text !== "") {
+            toClipboard(text, i18n("Copied the report"));
+        }
+    }
+
     // ---- changes -------------------------------------------------------
 
     // Every edit goes through here: mutate, redraw, write.

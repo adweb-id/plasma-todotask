@@ -392,6 +392,47 @@ function copyList(list) {
     return out.join("\n");
 }
 
+// "Copy report": a daily report for a chat, e.g. a stand-up. Sections without
+// tasks are left out, and so are check boxes and tags:
+//   <labels.done with the last earlier day that has finished tasks>
+//   <labels.doneToday>, <labels.review>, <labels.today> (open tasks)
+// `labels` holds the headings (done: a function that gets the date shown),
+// `day` turns "2026-10-23" into that date, `marks` the words for waiting and urgent tasks.
+function reportText(doc, today, labels, day, marks) {
+    function lines(task, note) {
+        var out = ["- " + task.text + (note ? " (" + note + ")" : "")];
+        task.subs.forEach(function (s) {
+            out.push("  - " + s.text + (s.done && !task.done ? " (" + marks.done + ")" : ""));
+        });
+        return out;
+    }
+    var sections = [];
+    function add(heading, tasks, note) {
+        if (tasks.length === 0) {
+            return;
+        }
+        var out = [heading];
+        tasks.forEach(function (t) { out = out.concat(lines(t, note ? note(t) : "")); });
+        sections.push(out.join("\n"));
+    }
+    var earlier = doc.done.filter(function (g) { return g.date < today && g.items.length > 0; })
+                          .sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
+    if (earlier) {
+        add(labels.done(day(earlier.date)), earlier.items);
+    }
+    var finished = [];
+    doc.done.forEach(function (g) {
+        if (g.date === today) {
+            finished = finished.concat(g.items);
+        }
+    });
+    add(labels.doneToday, finished);
+    add(labels.review, doc.review || []);
+    add(labels.today, doc.today, function (t) {
+        return t.waiting ? marks.waiting : t.urgent ? marks.urgent : "";
+    });
+    return sections.join("\n\n");
+}
 
 // ---- shell helpers -------------------------------------------------------
 

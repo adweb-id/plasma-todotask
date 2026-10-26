@@ -472,6 +472,12 @@ PlasmaExtras.Representation {
                         enabled: full.widget.todayTotal > 0
                         onClicked: full.widget.copyAll("today")
                     }
+                    // Done on the last day, done today, in review and planned
+                    MenuEntry {
+                        iconName: "copy"
+                        text: i18n("Copy report")
+                        onClicked: full.widget.copyReport()
+                    }
                 }
             }
 
