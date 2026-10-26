@@ -68,7 +68,7 @@ YOUR FILE
 - Workspaces: separate lists such as Work and Personal, each in its own file, switched from the popup
 - Finished days are kept per date and moved to monthly archive files after a week
 - Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are
-- Reload with one click after editing the file elsewhere
+- Edits made elsewhere (another editor, a sync tool) show up by themselves, and the widget never writes over them
 - Settings for work days, archive age, popup width and which list Enter adds to
 
 The file looks like this:

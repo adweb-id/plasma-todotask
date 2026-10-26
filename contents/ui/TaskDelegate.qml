@@ -78,6 +78,15 @@ Item {
         return Qt.font(spec);
     }
 
+    // Tells the widget, which waits with reading the file again meanwhile
+    readonly property bool anyEditor: editing || editingSub !== -1 || addingSub
+    onAnyEditorChanged: widget.rowEditing = anyEditor
+    Component.onDestruction: {
+        if (anyEditor) {
+            widget.rowEditing = false;
+        }
+    }
+
     // One editor at a time: opening one saves and closes the others
     function startEdit() {
         widget.editorOpened(editField);

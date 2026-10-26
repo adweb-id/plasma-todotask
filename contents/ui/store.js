@@ -470,16 +470,26 @@ function folderOf(path) {
     return at > 0 ? path.slice(0, at) : "/";
 }
 
+// The state of a file on disk, for noticing changes made by someone else:
+// "<mtime with nanoseconds> <size> <inode>", or "none" when it is not there.
+// Saving replaces the file (a new inode), and so do most editors.
+var STAMP = "if [ -e \"$p\" ]; then printf '%s %s' \"$(date -r \"$p\" +%s.%N)\" \"$(stat -c '%s %i' \"$p\")\"; else printf none; fi";
+
+function stampCommand(path) {
+    return "p=" + quote(path) + "; " + STAMP;
+}
+
 // Reads the task file. A setting that is a folder means todo.md in it: an
 // existing file is a file and an existing folder a folder; a path that is not
 // there yet is a file when its last part has an extension ("kerja.md"),
-// otherwise a folder ("~/Sync"). The first output line is the file in use.
+// otherwise a folder ("~/Sync"). The first output line is the file in use,
+// the second its stamp (see STAMP), then the content.
 function readCommand(path) {
     var orig = quote(path);
     return "p=" + orig + "; case \"$p\" in */) dir=1 ;; *) dir=0 ;; esac; p=\"${p%/}\"; [ -n \"$p\" ] || p=/; "
         + "if [ -d \"$p\" ]; then p=\"$p/todo.md\"; "
         + "elif [ ! -e \"$p\" ]; then case \"${p##*/}\" in ?*.*) [ $dir = 1 ] && p=\"$p/todo.md\" ;; *) p=\"$p/todo.md\" ;; esac; fi; "
-        + "p=$(printf '%s' \"$p\" | sed 's|//*|/|g'); printf '%s\\n' \"$p\"; "
+        + "p=$(printf '%s' \"$p\" | sed 's|//*|/|g'); printf '%s\\n' \"$p\"; " + STAMP + "; printf '\\n'; "
         + "if [ -f \"$p\" ]; then cat \"$p\"; else printf %s " + MISSING + "; fi";
 }
 
@@ -491,7 +501,13 @@ var CHUNK = 60000; // characters of base64 per command, well under the kernel's 
 // With `append` the decoded text is added to the end of `path` instead
 // (used for archive files); `header` is written first if that file is new.
 // The file must already be resolved (see readCommand); a folder is not accepted here.
-function writeCommands(path, text, append, header) {
+// With `expected` (a stamp from STAMP) the file is replaced only if it is still
+// in that state: when someone else changed it in the meantime the last command
+// fails with CONFLICT on stderr and nothing is written. When it succeeds, the
+// last command prints the new stamp.
+var CONFLICT = "__TODOTASK_CONFLICT__";
+
+function writeCommands(path, text, append, header, expected) {
     var encoded = base64(text);
     var b64 = quote(path + ".b64");
     var tmp = quote(path + ".tmp");
@@ -505,7 +521,11 @@ function writeCommands(path, text, append, header) {
         finish = (header ? "{ [ -f " + target + " ] || printf '%s\\n\\n' " + quote(header) + " > " + target + "; } && " : "")
             + "base64 -d < " + b64 + " >> " + target;
     } else {
-        finish = "base64 -d < " + b64 + " > " + tmp + " && mv " + tmp + " " + target;
+        finish = "base64 -d < " + b64 + " > " + tmp + " && mv " + tmp + " " + target + " && { p=" + target + "; " + STAMP + "; }";
+        if (expected) {
+            finish = "p=" + target + "; if [ \"$(" + STAMP + ")\" != " + quote(expected) + " ]; then rm -f " + b64
+                + "; printf %s " + CONFLICT + " >&2; exit 3; fi; " + finish;
+        }
     }
     // The first piece goes to a file next to the target, so its folder must exist
     commands[0] = "mkdir -p " + quote(folderOf(path)) + " && " + commands[0];

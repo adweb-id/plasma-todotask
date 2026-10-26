@@ -278,7 +278,8 @@ Plain Markdown, readable and editable in any editor:
 - A bullet without a box (`- text`) counts as a task and is written back as `- [ ] text`.
 - Any other `#`/`##` section is kept whole (it moves below Done) and never read as tasks.
 - A task is one line: line breaks in pasted text become spaces.
-- Edits made in another editor are picked up when the popup opens, or at once with the ⟳ button in the footer.
+- Edits made elsewhere (another editor, the widget in another panel, a sync tool) are picked up by themselves: within two seconds while the popup is open, within ten while it is closed. The ⟳ button in the footer reads the file at once.
+- The widget never writes over such an edit. Before saving it checks that the file is still the one it read. If not, it keeps the file as it is, reads it again and says that your last change was not saved. While a task is being edited in the popup, reading the file again waits until you are done.
 
 Finished days older than *Archive after* move to a monthly file next to it,
 for example `todo-archive-2026-10.md`. A day is removed from `todo.md` only
@@ -359,6 +360,12 @@ entries.
 
 **Changes do not show after updating.**
 Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
+
+**I edited the file in another editor. Can the widget overwrite that?**
+No. The widget notices the change within a few seconds and reads the file
+again. If you change something in the popup at the very moment the file
+changed elsewhere, the other edit wins and the popup says that your change was
+not saved, so you can make it again.
 
 **The badge shows `!`.**
 Hover it for the error. Check that the file shown in the popup footer is
