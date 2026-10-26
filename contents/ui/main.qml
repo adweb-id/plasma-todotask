@@ -114,6 +114,10 @@ PlasmoidItem {
 
     // The popup shows the About page instead of the lists (from the panel icon's menu)
     property bool showAbout: false
+    // Search in the popup: rows that do not match are hidden (see TaskDelegate)
+    property string searchText: ""
+    readonly property bool searching: searchText.trim() !== ""
+    readonly property int searchHits: searching && doc ? (todayTotal + reviewCount + queueTotal + dailyCount, Tasks.searchHits(doc, searchText)) : 0
     // Set by "Switch workspace…": the popup opens its workspace menu
     property bool workspaceMenuWanted: false
 
@@ -876,6 +880,7 @@ PlasmoidItem {
         } else {
             showAbout = false;
             workspaceMenuWanted = false;
+            searchText = "";
             addGroup = "";
         }
     }

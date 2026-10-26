@@ -59,6 +59,7 @@ ORGANISE
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
 - Copy report: what was done on the last day and today, what is in review and what is planned, ready for a stand-up
+- Search (Ctrl+F): filter all lists as you type, subtasks included
 - Drag a task to reorder it
 - Bold and italic text: put two asterisks around words for bold, one for italic
 - Undo for 5 seconds after adding, ticking or deleting

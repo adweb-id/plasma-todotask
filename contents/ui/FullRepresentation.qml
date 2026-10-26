@@ -13,6 +13,46 @@ PlasmaExtras.Representation {
 
     required property var widget
     property bool showDone: false
+    // The search field shows (see searchField)
+    property bool searchOpen: false
+
+    function openSearch() {
+        searchOpen = true;
+        searchField.forceActiveFocus();
+        searchField.selectAll();
+    }
+
+    function closeSearch() {
+        searchOpen = false;
+        searchField.text = "";
+        input.forceActiveFocus();
+    }
+
+    // The popup closed: the search starts closed and empty next time
+    Connections {
+        target: full.widget
+        function onExpandedChanged() {
+            if (!full.widget.expanded) {
+                full.searchOpen = false;
+                searchField.text = "";
+            }
+        }
+    }
+
+    // Ctrl+F from wherever the keyboard is in the popup: a key a field does not
+    // use comes up to here. Claiming it first keeps a Ctrl+F shortcut elsewhere
+    // in Plasma from taking it while the popup has the keyboard.
+    Keys.onShortcutOverride: event => {
+        if (full.listing && event.matches(StandardKey.Find)) {
+            event.accepted = true;
+        }
+    }
+    Keys.onPressed: event => {
+        if (full.listing && event.matches(StandardKey.Find)) {
+            full.openSearch();
+            event.accepted = true;
+        }
+    }
     // The About page hides the input, the lists and the footer
     readonly property bool listing: !widget.showAbout
     readonly property int sideMargin: Kirigami.Units.smallSpacing + Kirigami.Units.largeSpacing
@@ -407,6 +447,41 @@ PlasmaExtras.Representation {
                     }
                 }
             }
+
+            // Search: Ctrl+F or the magnifier in the footer; Esc closes it
+            PlasmaComponents3.TextField {
+                id: searchField
+                Layout.fillWidth: true
+                visible: full.searchOpen
+                leftPadding: searchGlyph.width + Kirigami.Units.largeSpacing * 2
+                rightPadding: Kirigami.Units.largeSpacing
+                placeholderText: i18n("Search tasks · Esc to close")
+                onTextChanged: full.widget.searchText = text
+                Keys.onEscapePressed: event => {
+                    full.closeSearch();
+                    event.accepted = true;
+                }
+
+                Glyph {
+                    id: searchGlyph
+                    anchors.left: parent.left
+                    anchors.leftMargin: Kirigami.Units.largeSpacing
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: "search"
+                    opacity: 0.6
+                }
+            }
+
+            PlasmaComponents3.Label {
+                Layout.fillWidth: true
+                Layout.leftMargin: Kirigami.Units.smallSpacing
+                visible: full.widget.searching
+                text: full.widget.searchHits > 0 ? i18np("1 task found", "%1 tasks found", full.widget.searchHits)
+                                                 : i18n("No task matches")
+                color: full.widget.searchHits > 0 ? Kirigami.Theme.textColor : Kirigami.Theme.neutralTextColor
+                font: Kirigami.Theme.smallFont
+                opacity: full.widget.searchHits > 0 ? 0.7 : 1
+            }
         }
     }
 
@@ -424,6 +499,12 @@ PlasmaExtras.Representation {
                 font: Kirigami.Theme.smallFont
                 opacity: 0.6
                 elide: Text.ElideMiddle
+            }
+
+            IconButton {
+                iconName: "search"
+                tip: i18n("Search (Ctrl+F)")
+                onClicked: full.searchOpen ? full.closeSearch() : full.openSearch()
             }
 
             IconButton {
@@ -631,12 +712,12 @@ PlasmaExtras.Representation {
                 title: i18n("Queue")
                 count: full.widget.queueTotal
                 foldable: true
-                open: !full.widget.queueCollapsed
+                open: !full.widget.queueCollapsed || full.widget.searching
                 onClicked: full.widget.setQueueCollapsed(open)
             }
 
             Item {
-                property real openness: full.widget.queueCollapsed ? 0 : 1
+                property real openness: full.widget.queueCollapsed && !full.widget.searching ? 0 : 1
 
                 Layout.fillWidth: true
                 Layout.preferredHeight: queueList.implicitHeight * openness
@@ -664,12 +745,12 @@ PlasmaExtras.Representation {
                 tip: i18n("Added to Today every work day. Date variables are filled in for the day: {date}, {date-1}, {date:dd/MM/yyyy}")
                 count: full.widget.dailyCount
                 foldable: true
-                open: !full.widget.dailyCollapsed
+                open: !full.widget.dailyCollapsed || full.widget.searching
                 onClicked: full.widget.setDailyCollapsed(open)
             }
 
             Item {
-                property real openness: full.widget.dailyCollapsed ? 0 : 1
+                property real openness: full.widget.dailyCollapsed && !full.widget.searching ? 0 : 1
 
                 Layout.fillWidth: true
                 Layout.preferredHeight: dailyColumn.implicitHeight * openness

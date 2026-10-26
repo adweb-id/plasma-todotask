@@ -635,3 +635,30 @@ function reminderText(doc, max) {
     }
     return lines.join("\n");
 }
+
+// ---- search -----------------------------------------------------------------
+
+// Every word of `query` is in the task text or in one of its subtasks
+// (any case, ** and * left out)
+function matchesSearch(task, query) {
+    var words = String(query || "").toLowerCase().split(/\s+/).filter(function (w) { return w !== ""; });
+    if (words.length === 0) {
+        return true;
+    }
+    var hay = [task.text].concat((task.subs || []).map(function (s) { return s.text; }))
+        .join("\n").toLowerCase().replace(/\*+/g, "");
+    return words.every(function (w) { return hay.indexOf(w) !== -1; });
+}
+
+// How many tasks in Today, In review, the Queue and the Daily list match
+function searchHits(doc, query) {
+    var hits = 0;
+    ["today", "review", "queue", "daily"].forEach(function (name) {
+        (doc[name] || []).forEach(function (t) {
+            if (matchesSearch(t, query)) {
+                hits++;
+            }
+        });
+    });
+    return hits;
+}

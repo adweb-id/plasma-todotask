@@ -55,7 +55,10 @@ Item {
     readonly property int checkSize: Math.round(Kirigami.Units.gridUnit * 1.05)
     // A Queue row folds away with its group
     readonly property bool folded: listName === "queue" && group !== "" && widget.foldedGroups.indexOf(group) !== -1
-    property real openness: folded ? 0 : 1
+    // While searching, rows that do not match fold away and folded groups open
+    readonly property bool searchHidden: widget.searching
+        && !Tasks.matchesSearch({ text: taskText, subs: subs }, widget.searchText)
+    property real openness: (widget.searching ? searchHidden : folded) ? 0 : 1
 
     Behavior on openness {
         NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
@@ -145,7 +148,8 @@ Item {
 
     // First row of its Queue group (re-checked whenever the rows change)
     readonly property bool groupStart: {
-        if (listName !== "queue" || group === "" || widget.groupCounts === undefined) {
+        // While searching the group shows as a label on each row instead
+        if (listName !== "queue" || group === "" || widget.groupCounts === undefined || widget.searching) {
             return false;
         }
         // While a row is being removed the one above may already be gone
@@ -543,7 +547,7 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
                     Layout.maximumWidth: Kirigami.Units.gridUnit * 6
-                    visible: row.checkable && row.group !== ""
+                    visible: (row.checkable || row.widget.searching) && row.group !== ""
                     implicitWidth: groupLabel.implicitWidth + Kirigami.Units.largeSpacing
                     implicitHeight: groupLabel.implicitHeight + 2
                     radius: height / 2

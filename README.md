@@ -91,6 +91,15 @@ Right-click the icon for:
 - **Open todo.md** (the name of your task file): opens the file of the active workspace in your default editor.
 - **About Todo Task**: version, author, license, and buttons for the source code and bug reports.
 
+### Searching
+
+Press Ctrl+F in the popup, or click the magnifier in the footer. Typing
+filters Today, In review, the Queue and the Daily list as you go: a task shows
+when every word you typed is in its text or in one of its subtasks, in any
+case. Folded sections and Queue groups open while you search, and each Queue
+task shows its group as a label. The line under the field says how many tasks
+were found. Esc, the magnifier again or closing the popup ends the search.
+
 ### Adding tasks
 
 | Key in the input field | Adds to |
