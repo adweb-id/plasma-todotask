@@ -320,11 +320,49 @@ pages: **General** (task file and workspaces, Enter, popup width), **Tasks**
   be read as a command and the file size is not limited.
 - Nothing runs in the background except the once-a-minute date check.
 
-## Troubleshooting
+## FAQ
 
-- **The widget is not in the panel after installing.** Installing only registers it; add it with *Add Widgets…* or in the system tray entries.
-- **Changes do not show after updating.** Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
-- **The badge shows `!`.** Hover it for the error; check that the file shown in the popup footer is writable, then use *Try again* in the popup.
+**Where is my task file, and where do finished tasks go?**
+The popup footer shows the file in use (by default `Documents/todotask/todo.md`,
+or `Documents/todo.md` if you had one before 0.2.0). *Open file* opens it.
+Finished days older than *Archive after* move to monthly files next to it,
+e.g. `todo-archive-2026-10.md`.
+
+**Why are today's Daily tasks not in Today?**
+They are added on the work days set in *Settings → Tasks → Daily tasks on*,
+when the widget first sees the new day. A Daily task still in In review stays
+there, and today's copy is added to Today next to it.
+
+**How do I put today's date in a Daily task?**
+Write `{date}` in the task, a subtask or a note in the Daily list, e.g.
+`created_at LIKE '{date}%'`. See [Daily tasks](#daily-tasks) for `{date-1}`
+and other formats.
+
+**Why does a ticked task go to In review instead of Done?**
+*Settings → Tasks → Ticking a task: Send it to In review first* is on. Tick it
+again in In review, or finish it at once with Shift+click on the box or
+right-click → *Done, skip review*.
+
+**Why does no reminder show?**
+Check that *Settings → Reminders* is on and that the line under the times
+says *Reminders at …* with your times. Reminders show only on work days and
+only while something is left in Today or In review. Do Not Disturb holds them
+back. *Test* shows one at once, so you can see that notifications get through.
+
+**Two workspaces show the same tasks.**
+Their paths point at the same file. The settings say *Same file as …* under
+such a row. Give each workspace its own file or folder.
+
+**The widget is not in the panel after installing.**
+Installing only registers it. Add it with *Add Widgets…* or in the system tray
+entries.
+
+**Changes do not show after updating.**
+Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
+
+**The badge shows `!`.**
+Hover it for the error. Check that the file shown in the popup footer is
+writable, then use *Try again* in the popup.
 
 ## Development
 

@@ -93,6 +93,14 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
 
+## Changelog for 0.4.0
+
+- In review (optional): with Settings, Tasks, "Send it to In review first", a tick in Today moves a task to a new In review section until it has been checked, and a second tick finishes it. Right-click, Back to Today sends it back for more work. Shift+click on the box, or right-click, Done, skip review, finishes a task at once.
+- Reminders (optional): a notification at the times you choose, on work days, while tasks are left in Today or In review. It says how many are left and names the first three, and clicking it opens the popup. The settings show which times they read and which they did not understand, and a Test button shows a reminder at once.
+- Notifications now come from Todo Task with its own name and logo, and can be set up in System Settings, Notifications
+- The settings are split into three pages: General, Tasks and Reminders, with the widget's own icons
+- Help button in the About page, leading to a new FAQ in the README
+
 ## Changelog for 0.3.0
 
 - Urgent mark: right-click a task, Mark as urgent. It gets a red label, moves to the top of its list or group, and Pull next takes it first. Finishing the task removes the mark.

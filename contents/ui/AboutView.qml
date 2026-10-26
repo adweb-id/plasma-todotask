@@ -57,11 +57,29 @@ ColumnLayout {
         text: i18n("%1 · License %2", about.meta.copyrightText, about.meta.license)
     }
 
-    RowLayout {
+    // Wraps onto two lines in a narrow popup
+    Flow {
+        id: links
+
+        // One line when the buttons fit, as wide as they need
+        readonly property real natural: helpButton.implicitWidth + sourceButton.implicitWidth
+                                        + bugButton.implicitWidth + spacing * 2
+
         Layout.alignment: Qt.AlignHCenter
+        Layout.preferredWidth: Math.min(natural, about.width - Kirigami.Units.largeSpacing * 2)
         spacing: Kirigami.Units.smallSpacing
 
+        // Answers to common questions, in the README on GitHub
         IconButton {
+            id: helpButton
+            tone: "accent"
+            iconName: "help"
+            text: i18n("Help")
+            onClicked: Qt.openUrlExternally(about.meta.website + "#faq")
+        }
+
+        IconButton {
+            id: sourceButton
             tone: "accent"
             iconName: "external"
             text: i18n("Source code")
@@ -69,6 +87,7 @@ ColumnLayout {
         }
 
         IconButton {
+            id: bugButton
             tone: "accent"
             iconName: "bug"
             text: i18n("Report a bug")
