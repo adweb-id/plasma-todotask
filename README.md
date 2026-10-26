@@ -187,6 +187,8 @@ three. Clicking it opens the popup. *Test* in the settings shows one at once.
 
 - A reminder up to 30 minutes late is still shown (after waking the computer),
   older ones are skipped.
+- Each time shows once a day, also when Plasma restarts or you log in again
+  within those 30 minutes.
 - Plasma's Do Not Disturb holds them back like any other notification.
 - They stay on screen until you close or click them (*Keep reminders on screen
   until closed*, on by default). Turned off, they go away after Plasma's usual

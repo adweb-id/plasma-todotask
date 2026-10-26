@@ -50,6 +50,10 @@
       <label>Reminders stay on screen until they are closed</label>
       <default>true</default>
     </entry>
+    <entry name="remindersShown" type="String">
+      <label>Reminders already shown, as "yyyy-MM-dd HH:mm HH:mm", so a restart of Plasma does not show them again</label>
+      <default></default>
+    </entry>
     <entry name="carryOver" type="Bool">
       <default>true</default>
     </entry>

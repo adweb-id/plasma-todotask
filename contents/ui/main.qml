@@ -882,9 +882,13 @@ PlasmoidItem {
 
     // ---- reminders -----------------------------------------------------
 
-    // Reminder times already shown today (forgotten on a new day)
-    property var remindersShown: []
-    property string remindersDay: ""
+    // Reminder times already shown on `day` (none on a new day). Kept in the
+    // settings, not in memory: Plasma restarting (or logging in again) within
+    // half an hour of a reminder must not show it again.
+    function remindersShown(day) {
+        const parts = String(Plasmoid.configuration.remindersShown || "").split(" ");
+        return parts[0] === day ? parts.slice(1).filter(t => t !== "") : [];
+    }
 
     // At a reminder time on a work day, while something is left in Today or
     // In review: one notification. Plasma's Do Not Disturb holds it back.
@@ -894,19 +898,16 @@ PlasmoidItem {
         }
         const now = new Date();
         const day = today();
-        if (remindersDay !== day) {
-            remindersDay = day;
-            remindersShown = [];
-        }
         if (dailyDays().indexOf(now.getDay()) === -1) {
             return;
         }
+        const shown = remindersShown(day);
         const due = Tasks.dueReminder(Tasks.parseTimes(Plasmoid.configuration.reminderTimes),
-                                      Qt.formatTime(now, "HH:mm"), remindersShown, 30);
+                                      Qt.formatTime(now, "HH:mm"), shown, 30);
         if (due === "") {
             return;
         }
-        remindersShown = remindersShown.concat([due]);
+        Plasmoid.configuration.remindersShown = [day].concat(shown, [due]).join(" ");
         if (todayCount + reviewCount > 0) {
             showReminder();
         }
