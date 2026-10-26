@@ -540,6 +540,12 @@ function styled(text) {
 }
 
 // "2026-10-06" minus 7 days -> "2026-09-29"
+// Whole days from `since` to `today` (both "yyyy-MM-dd"), 0 when unknown
+function daysBetween(since, today) {
+    var days = Math.round((Date.parse(today + "T00:00:00Z") - Date.parse(since + "T00:00:00Z")) / 86400000);
+    return isNaN(days) ? 0 : days;
+}
+
 function daysBefore(date, days) {
     var time = Date.parse(date + "T00:00:00Z") - days * 86400000;
     return new Date(time).toISOString().slice(0, 10);

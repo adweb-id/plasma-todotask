@@ -364,6 +364,9 @@ PlasmoidItem {
             uid: uidOf(task),
             taskText: task.text,
             carried: !task.daily && task.since !== "" && task.since < now,
+            // Days since it came to Today, for the carried-over label
+            age: task.daily ? 0 : Tasks.daysBetween(task.since, now),
+            since: task.since || "",
             daily: !!task.daily,
             waiting: !!task.waiting,
             urgent: !!task.urgent,
@@ -378,6 +381,8 @@ PlasmoidItem {
             uid: uidOf(task),
             taskText: task.text,
             carried: false,
+            age: 0,
+            since: "",
             daily: false,
             waiting: !!task.waiting,
             urgent: !!task.urgent,

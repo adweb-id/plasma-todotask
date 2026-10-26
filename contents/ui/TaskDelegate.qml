@@ -18,6 +18,9 @@ Item {
     required property int index
     required property string taskText
     required property bool carried
+    // Days since the task came to Today, and that date
+    required property int age
+    required property string since
     required property bool daily
     required property string group
     required property bool waiting
@@ -563,6 +566,8 @@ Item {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
+                // Carried over: how long ago it came to Today. The older, the
+                // stronger, so tasks that keep slipping stand out.
                 Rectangle {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
@@ -570,15 +575,22 @@ Item {
                     implicitWidth: yesterdayLabel.implicitWidth + Kirigami.Units.largeSpacing
                     implicitHeight: yesterdayLabel.implicitHeight + 2
                     radius: height / 2
-                    color: row.alpha(Kirigami.Theme.neutralTextColor, 0.18)
+                    color: row.alpha(Kirigami.Theme.neutralTextColor, row.age >= 7 ? 0.42 : row.age >= 3 ? 0.28 : 0.18)
 
                     PlasmaComponents3.Label {
                         id: yesterdayLabel
                         anchors.centerIn: parent
-                        text: i18n("yesterday")
-                        font: Kirigami.Theme.smallFont
-                        color: Kirigami.Theme.neutralTextColor
+                        text: row.age <= 1 ? i18n("yesterday") : i18np("%1 day", "%1 days", row.age)
+                        font: row.smallFont({ bold: row.age >= 7 })
+                        color: row.age >= 7 ? Kirigami.Theme.textColor : Kirigami.Theme.neutralTextColor
                     }
+
+                    HoverHandler {
+                        id: ageHover
+                    }
+                    QQC2.ToolTip.text: i18n("In Today since %1", Qt.formatDate(new Date(row.since + "T00:00:00"), "ddd d MMM"))
+                    QQC2.ToolTip.visible: ageHover.hovered && row.since !== ""
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
                 TapHandler {

@@ -21,7 +21,7 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 - **Project groups** in the Queue (`### SRSX` in the file): fold each group, add to it with ＋, rename or reorder groups; a task moved to Today shows its group and goes back to it.
 - **Quick add**: Enter adds to the Queue, Shift+Enter to Today (can be swapped in the settings).
 - **Tick to finish**: the task moves to "Done today", where unticking brings it back.
-- **Carry-over**: on a new day unfinished tasks stay in Today, marked "yesterday".
+- **Carry-over**: on a new day unfinished tasks stay in Today, marked with how long they have been there ("yesterday", "5 days").
 - **Waiting**: mark tasks that are on hold; they dim, sink to the bottom and are skipped by *Pull next* and the counts.
 - **Daily routine**: tasks in the Daily list are added to the top of Today every work day.
 - **Subtasks**, one level deep, with progress such as `1/3` on the parent.
@@ -104,7 +104,7 @@ A small toast floating over the bottom of the list says where the task went, for
 ### The task row
 
 A row shows only the checkbox (Today), the text, the subtask progress and the
-"yesterday" label. Resting the pointer on it shows four buttons over the end of
+age label ("yesterday", "5 days"). Resting the pointer on it shows four buttons over the end of
 the text, without moving anything:
 
 | Button | Does |
@@ -241,7 +241,7 @@ Checked when the widget loads and once a minute:
 
 1. The Today heading in the file gets today's date.
 2. On a work day, fresh copies of the Daily tasks go to the top of Today.
-3. Unfinished tasks stay in Today and show "yesterday". With *carry-over* off they go back to the top of the Queue instead.
+3. Unfinished tasks stay in Today with their age: "yesterday", then "3 days" and so on. The label gets stronger from 3 days and stands out from 7 days, so a task that keeps slipping is easy to see. Hover it for the date it came to Today. With *carry-over* off they go back to the top of the Queue instead.
 4. The Queue does not change.
 
 ## The todo.md file
@@ -273,7 +273,7 @@ Plain Markdown, readable and editable in any editor:
 ```
 
 - Tasks are `- [ ]` / `- [x]` lines; subtasks are indented two spaces under their parent.
-- The `since` comment records when a task entered Today and drives the "yesterday" label.
+- The `since` comment records when a task entered Today and drives the age label ("yesterday", "5 days").
 - Nothing is lost or moved away from its task: deeper indented lines, paragraphs and code blocks are kept as notes of the task or subtask above them, exactly where they were. Code blocks are never read as tasks.
 - A bullet without a box (`- text`) counts as a task and is written back as `- [ ] text`.
 - Any other `#`/`##` section is kept whole (it moves below Done) and never read as tasks.

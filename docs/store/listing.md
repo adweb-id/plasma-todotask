@@ -45,7 +45,7 @@ EVERY DAY
 - Panel or system tray icon with the number of tasks left today
 - Today and Queue lists: Enter adds to the Queue, Shift+Enter to Today (can be swapped)
 - Tick a task: it is struck through and moves to "Done today"; untick to bring it back
-- Unfinished tasks stay in Today on a new day, marked "yesterday"
+- Unfinished tasks stay in Today on a new day, marked with how long they have been there ("yesterday", "5 days"), stronger the older they get
 - Daily routine: tasks in the Daily list are added to the top of Today every work day
 - Date variables in Daily tasks: {date}, {date-1} or {date:dd/MM/yyyy} become the date of the day, handy for a daily query or report
 
