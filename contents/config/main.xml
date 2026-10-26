@@ -46,6 +46,10 @@
       <label>Reminder times, e.g. "11:00, 15:00"</label>
       <default>11:00, 15:00</default>
     </entry>
+    <entry name="remindersStay" type="Bool">
+      <label>Reminders stay on screen until they are closed</label>
+      <default>true</default>
+    </entry>
     <entry name="carryOver" type="Bool">
       <default>true</default>
     </entry>

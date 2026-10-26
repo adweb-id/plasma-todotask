@@ -933,6 +933,8 @@ PlasmoidItem {
             eventId: "reminder"
             iconName: root.logoPath
             hints: ({ "x-kde-display-appname": i18n("Todo Task") })
+            // Not gone after a few seconds, unless that is wanted
+            flags: Plasmoid.configuration.remindersStay ? Notification.Persistent : Notification.CloseOnTimeout
             defaultAction: NotificationAction {
                 label: i18n("Open Todo Task")
                 onActivated: root.expanded = true

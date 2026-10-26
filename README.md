@@ -188,6 +188,9 @@ three. Clicking it opens the popup. *Test* in the settings shows one at once.
 - A reminder up to 30 minutes late is still shown (after waking the computer),
   older ones are skipped.
 - Plasma's Do Not Disturb holds them back like any other notification.
+- They stay on screen until you close or click them (*Keep reminders on screen
+  until closed*, on by default). Turned off, they go away after Plasma's usual
+  time. Either way they stay in the notification history.
 
 ### In review
 
@@ -331,6 +334,7 @@ pages: **General** (task file and workspaces, Enter, popup width), **Tasks**
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
 | Reminders: remind me to check the list | off, times 11:00, 15:00 | A notification at these times on work days while tasks are left |
+| Reminders: keep reminders on screen until closed | on | Off: they go away after Plasma's usual time |
 | Ticking a task: send it to In review first | off | A tick in Today moves the task to In review, a tick there finishes it |
 | Daily tasks on | Mon–Fri | Work days the Daily tasks are added to Today |
 | Archive finished tasks after (days) | 7 | 0 keeps everything in `todo.md` |
