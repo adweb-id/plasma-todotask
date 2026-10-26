@@ -4,16 +4,11 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import QtQuick.Dialogs as Dialogs
 import org.kde.kcmutils as KCM
-
 KCM.SimpleKCM {
     property string cfg_filePath
     property string cfg_workspaces
     property string cfg_newTaskTarget
     property alias cfg_popupWidth: widthSpin.value
-    property alias cfg_carryOver: carryCheck.checked
-    property alias cfg_reviewStep: reviewCheck.checked
-    property alias cfg_archiveDays: archiveSpin.value
-    property string cfg_dailyDays
     // The workspace rows being edited. One row is stored the old way, as
     // cfg_filePath; two or more are stored as a JSON list in cfg_workspaces.
     ListModel {
@@ -154,7 +149,8 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
-                        icon.name: "text-markdown"
+                        icon.source: Qt.resolvedUrl("../icons/tt-file.svg")
+                        icon.color: Kirigami.Theme.textColor
                         display: QQC2.AbstractButton.IconOnly
                         text: i18n("Choose a file…")
                         onClicked: {
@@ -167,7 +163,8 @@ KCM.SimpleKCM {
                     }
 
                     QQC2.Button {
-                        icon.name: "folder-open"
+                        icon.source: Qt.resolvedUrl("../icons/tt-folder.svg")
+                        icon.color: Kirigami.Theme.textColor
                         display: QQC2.AbstractButton.IconOnly
                         text: i18n("Choose a folder…")
                         onClicked: {
@@ -181,7 +178,8 @@ KCM.SimpleKCM {
 
                     QQC2.Button {
                         visible: wsModel.count > 1
-                        icon.name: "list-remove"
+                        icon.source: Qt.resolvedUrl("../icons/tt-minus.svg")
+                        icon.color: Kirigami.Theme.textColor
                         display: QQC2.AbstractButton.IconOnly
                         text: i18n("Remove this workspace")
                         onClicked: {
@@ -207,7 +205,8 @@ KCM.SimpleKCM {
             }
 
             QQC2.Button {
-                icon.name: "list-add"
+                icon.source: Qt.resolvedUrl("../icons/tt-plus.svg")
+                icon.color: Kirigami.Theme.textColor
                 text: i18n("Add workspace")
                 onClicked: {
                     wsModel.append({ name: "", path: "" });
@@ -234,7 +233,8 @@ KCM.SimpleKCM {
             customFooterActions: [
                 Kirigami.Action {
                     text: i18n("Remove")
-                    icon.name: "list-remove"
+                    icon.source: Qt.resolvedUrl("../icons/tt-minus.svg")
+                    icon.color: Kirigami.Theme.textColor
                     onTriggered: {
                         if (removeDialog.row >= 0 && removeDialog.row < wsModel.count) {
                             wsModel.remove(removeDialog.row);
@@ -293,72 +293,6 @@ KCM.SimpleKCM {
             from: 300
             to: 800
             stepSize: 20
-        }
-
-        QQC2.CheckBox {
-            id: carryCheck
-            Kirigami.FormData.label: i18n("New day:")
-            text: i18n("Keep unfinished tasks in Today")
-        }
-
-        QQC2.CheckBox {
-            id: reviewCheck
-            Kirigami.FormData.label: i18n("Ticking a task:")
-            text: i18n("Send it to In review first")
-        }
-
-        QQC2.Label {
-            text: i18n("A task ticked in Today waits in In review until it is ticked again there. Shift+click the box, or right-click → Done, skip review, to finish one at once.")
-            font: Kirigami.Theme.smallFont
-            opacity: 0.7
-            wrapMode: Text.Wrap
-            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
-        }
-
-        // Work days for the Daily tasks, Monday first; stored as Date.getDay() numbers
-        RowLayout {
-            Kirigami.FormData.label: i18n("Daily tasks on:")
-            spacing: Kirigami.Units.smallSpacing
-
-            Repeater {
-                model: [1, 2, 3, 4, 5, 6, 0]
-
-                QQC2.CheckBox {
-                    required property int modelData
-                    text: Qt.locale().dayName(modelData, Locale.ShortFormat)
-                    checked: cfg_dailyDays.split(",").indexOf(String(modelData)) !== -1
-                    onToggled: {
-                        const days = cfg_dailyDays.split(",").filter(d => d !== "" && d !== String(modelData));
-                        if (checked) {
-                            days.push(String(modelData));
-                        }
-                        cfg_dailyDays = days.sort().join(",");
-                    }
-                }
-            }
-        }
-
-        QQC2.Label {
-            text: i18n("Daily tasks can hold date variables, filled in for the day: {date}, {date-1}, {date:dd/MM/yyyy}.")
-            font: Kirigami.Theme.smallFont
-            opacity: 0.7
-            wrapMode: Text.Wrap
-            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
-        }
-
-        QQC2.SpinBox {
-            id: archiveSpin
-            Kirigami.FormData.label: i18n("Archive finished tasks after (days):")
-            from: 0
-            to: 365
-        }
-
-        QQC2.Label {
-            text: i18n("Older finished tasks move to a monthly archive file next to the task file (todo-archive-YYYY-MM.md). 0 keeps everything in the task file.")
-            font: Kirigami.Theme.smallFont
-            opacity: 0.7
-            wrapMode: Text.Wrap
-            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
         }
     }
 }

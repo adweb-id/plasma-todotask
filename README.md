@@ -155,6 +155,18 @@ The Queue can be split into groups, one per project. In the file a group is a
 - Dragging reorders within a group. A task moved to Today shows its group as a
   small label and returns to the same group when moved back.
 
+### Reminders
+
+Off by default. Turn on *Reminders: Remind me to check the list* in the
+settings and write the times, e.g. `11:00, 15:00, 16:45`. At those times, on
+the work days of the Daily tasks and only while something is left in Today or
+In review, a notification says how many tasks are left and names the first
+three. Clicking it opens the popup. *Test* in the settings shows one at once.
+
+- A reminder up to 30 minutes late is still shown (after waking the computer),
+  older ones are skipped.
+- Plasma's Do Not Disturb holds them back like any other notification.
+
 ### In review
 
 For work that has to be checked (QC, a review, a confirmation) before it
@@ -285,7 +297,9 @@ of the widget has *Switch to …* as well.
 
 ## Settings
 
-Right-click the widget → *Configure Todo Task…*
+Right-click the widget → *Configure Todo Task…*. The settings are on three
+pages: **General** (task file and workspaces, Enter, popup width), **Tasks**
+(new day, In review, Daily work days, archive) and **Reminders**.
 
 | Setting | Default | Notes |
 | --- | --- | --- |
@@ -293,6 +307,7 @@ Right-click the widget → *Configure Todo Task…*
 | Enter adds a task to | Queue | Shift+Enter always adds to the other list |
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
+| Reminders: remind me to check the list | off, times 11:00, 15:00 | A notification at these times on work days while tasks are left |
 | Ticking a task: send it to In review first | off | A tick in Today moves the task to In review, a tick there finishes it |
 | Daily tasks on | Mon–Fri | Work days the Daily tasks are added to Today |
 | Archive finished tasks after (days) | 7 | 0 keeps everything in `todo.md` |

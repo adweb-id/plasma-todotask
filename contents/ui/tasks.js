@@ -571,3 +571,61 @@ function oldDone(doc, today, days) {
 function dropDone(doc, dates) {
     doc.done = doc.done.filter(function (g) { return dates.indexOf(g.date) === -1; });
 }
+
+// ---- reminders --------------------------------------------------------------
+
+// "11:00, 9.30 25:00 3pm" -> { times: ["09:30", "11:00"], unknown: ["25:00", "3pm"] }:
+// valid times sorted and once each, and the parts that are not a time
+function timeParts(text) {
+    var times = [];
+    var unknown = [];
+    String(text || "").split(/[\s,;]+/).forEach(function (part) {
+        if (part === "") {
+            return;
+        }
+        var m = /^(\d{1,2})[:.](\d{2})$/.exec(part);
+        if (m && Number(m[1]) < 24 && Number(m[2]) < 60) {
+            var time = (m[1].length === 1 ? "0" : "") + m[1] + ":" + m[2];
+            if (times.indexOf(time) === -1) {
+                times.push(time);
+            }
+        } else if (unknown.indexOf(part) === -1) {
+            unknown.push(part);
+        }
+    });
+    return { times: times.sort(), unknown: unknown };
+}
+
+function parseTimes(text) {
+    return timeParts(text).times;
+}
+
+// The reminder time to show now ("HH:mm"), or "" for none: the latest one that
+// has passed, not shown yet today, at most `late` minutes ago (a computer that
+// was asleep at that time does not get a pile of old reminders on waking)
+function dueReminder(times, now, shown, late) {
+    function minutes(t) {
+        return Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+    }
+    var due = "";
+    times.forEach(function (t) {
+        var ago = minutes(now) - minutes(t);
+        if (ago >= 0 && ago <= late && shown.indexOf(t) === -1) {
+            due = t;
+        }
+    });
+    return due;
+}
+
+// The notification text: what is left, then the first few tasks
+function reminderText(doc, max) {
+    var open = doc.today.filter(function (t) { return !t.waiting; });
+    var lines = [];
+    open.slice(0, max).forEach(function (t) {
+        lines.push("• " + t.text.replace(/\*+/g, ""));
+    });
+    if (open.length > max) {
+        lines.push("…");
+    }
+    return lines.join("\n");
+}

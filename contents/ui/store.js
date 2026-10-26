@@ -532,3 +532,27 @@ function archiveText(groups) {
 function openCommand(path) {
     return "xdg-open " + quote(path);
 }
+
+// Plasma names a notification and picks its icon from a .notifyrc file in
+// knotifications6/. A widget package cannot install one, so the widget writes
+// its own (only when the content differs): reminders then show "Todo Task"
+// with our icon, and can be set up in System Settings → Notifications.
+function notifyrcText(iconPath) {
+    return [
+        "[Global]",
+        "IconName=" + iconPath,
+        "Name=Todo Task",
+        "Comment=Todo Task",
+        "",
+        "[Event/reminder]",
+        "Name=Reminder to check the list",
+        "Comment=Reminder to check the list",
+        "Action=Popup",
+        ""
+    ].join("\n");
+}
+
+function notifyrcCommand(iconPath) {
+    return "d=\"${XDG_DATA_HOME:-$HOME/.local/share}/knotifications6\"; f=\"$d/todotask.notifyrc\"; t=" + quote(notifyrcText(iconPath)) + "; "
+        + "[ \"$(cat \"$f\" 2>/dev/null)\" = \"$(printf '%s' \"$t\")\" ] || { mkdir -p \"$d\" && printf '%s' \"$t\" > \"$f\"; }";
+}
