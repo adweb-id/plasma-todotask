@@ -7,6 +7,17 @@ QQC2.AbstractButton {
     id: box
 
     property bool on: false
+    // True during clicked() when Shift was held down for this click
+    property bool shift: false
+
+    // Sees every press without taking it from the button, before clicked()
+    TapHandler {
+        onPressedChanged: {
+            if (pressed) {
+                box.shift = (point.modifiers & Qt.ShiftModifier) !== 0;
+            }
+        }
+    }
 
     hoverEnabled: true
     implicitWidth: Math.round(Kirigami.Units.gridUnit * 1.05)

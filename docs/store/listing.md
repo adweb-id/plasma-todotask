@@ -53,6 +53,7 @@ ORGANISE
 
 - Project groups in the Queue: fold them, add straight to a group, rename and reorder
 - Urgent mark for work that comes first: red label, kept at the top, taken first by "Pull next"
+- In review (optional): a tick in Today moves a task to In review until it has been checked, a second tick finishes it
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)

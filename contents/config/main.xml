@@ -34,6 +34,10 @@
       <min>300</min>
       <max>800</max>
     </entry>
+    <entry name="reviewStep" type="Bool">
+      <label>Ticking a task in Today sends it to In review first, ticking it there finishes it</label>
+      <default>false</default>
+    </entry>
     <entry name="carryOver" type="Bool">
       <default>true</default>
     </entry>

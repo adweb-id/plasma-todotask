@@ -54,6 +54,10 @@ PlasmoidItem {
     property string errorText: ""
 
     property int todayCount: 0
+    // Finished in Today, waiting for a check (the In review section)
+    property int reviewCount: 0
+    // Ticking in Today sends a task to In review first (setting)
+    readonly property bool reviewStep: Plasmoid.configuration.reviewStep
     property int queueCount: 0
     property int dailyCount: 0
     // todayCount and queueCount leave out waiting tasks; these count them too
@@ -108,6 +112,7 @@ PlasmoidItem {
     property bool workspaceMenuWanted: false
 
     readonly property alias todayModel: todayModel
+    readonly property alias reviewModel: reviewModel
     readonly property alias queueModel: queueModel
     readonly property alias dailyModel: dailyModel
     readonly property alias doneModel: doneModel
@@ -164,6 +169,7 @@ PlasmoidItem {
     fullRepresentation: FullRepresentation { widget: root }
 
     ListModel { id: todayModel }
+    ListModel { id: reviewModel }
     ListModel { id: queueModel }
     ListModel { id: dailyModel }
     ListModel { id: doneModel }
@@ -344,6 +350,7 @@ PlasmoidItem {
         todayTotal = doc.today.length;
         todayCount = Tasks.activeCount(doc.today);
         todayWaiting = todayTotal - todayCount;
+        reviewCount = doc.review.length;
         queueTotal = doc.queue.length;
         queueCount = Tasks.activeCount(doc.queue);
         dailyCount = doc.daily.length;
@@ -352,7 +359,7 @@ PlasmoidItem {
         if (addGroup !== "" && doc.groups.indexOf(addGroup) === -1) {
             addGroup = "";
         }
-        sync(todayModel, doc.today, task => ({
+        const todayRow = task => ({
             uid: uidOf(task),
             taskText: task.text,
             carried: !task.daily && task.since !== "" && task.since < now,
@@ -363,7 +370,9 @@ PlasmoidItem {
             subsJson: JSON.stringify(task.subs),
             subDone: Tasks.subDone(task),
             subTotal: task.subs.length
-        }));
+        });
+        sync(todayModel, doc.today, todayRow);
+        sync(reviewModel, doc.review, todayRow);
         const plainRow = task => ({
             uid: uidOf(task),
             taskText: task.text,
@@ -555,9 +564,25 @@ PlasmoidItem {
                target);
     }
 
-    function completeTask(index) {
+    // With the review step on, a tick in Today sends the task to In review;
+    // `skipReview` (Shift+click, or the menu) finishes it at once
+    function completeTask(index, skipReview) {
         const name = doc.today[index] ? doc.today[index].text : "";
-        change(d => Tasks.complete(d, index, today()), i18n("Completed: %1", name));
+        if (reviewStep && !skipReview) {
+            change(d => Tasks.toReview(d, index), i18n("In review: %1", name), "review");
+        } else {
+            change(d => Tasks.complete(d, index, today()), i18n("Completed: %1", name));
+        }
+    }
+
+    function completeReview(index) {
+        const name = doc.review[index] ? doc.review[index].text : "";
+        change(d => Tasks.completeReview(d, index, today()), i18n("Completed: %1", name));
+    }
+
+    function backToToday(index) {
+        const name = doc.review[index] ? doc.review[index].text : "";
+        change(d => Tasks.backToToday(d, index), i18n("Back to Today: %1", name), "today");
     }
 
     function uncompleteTask(index) {
@@ -681,7 +706,7 @@ PlasmoidItem {
 
     // Called after a drag: the ListModel already has the new order, copy it to the doc.
     function commitOrder(listName) {
-        const model = { today: todayModel, queue: queueModel, daily: dailyModel }[listName];
+        const model = { today: todayModel, review: reviewModel, queue: queueModel, daily: dailyModel }[listName];
         const byUid = {};
         doc[listName].forEach(task => { byUid[task.uid] = task; });
         const ordered = [];
@@ -732,8 +757,8 @@ PlasmoidItem {
         addGroup = "";
         flashText = "";
         writeQueued = false;
-        [todayModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
-        todayCount = todayTotal = todayWaiting = 0;
+        [todayModel, reviewModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
+        todayCount = todayTotal = todayWaiting = reviewCount = 0;
         queueCount = queueTotal = dailyCount = doneCount = 0;
         filePath = targetPath;
         load();
