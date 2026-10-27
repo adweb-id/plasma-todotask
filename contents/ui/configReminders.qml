@@ -11,6 +11,7 @@ import "tasks.js" as Tasks
 KCM.SimpleKCM {
     property alias cfg_remindersOn: remindCheck.checked
     property alias cfg_reminderTimes: remindField.text
+    property alias cfg_remindersStay: stayCheck.checked
 
     Kirigami.FormLayout {
         QQC2.CheckBox {
@@ -62,6 +63,12 @@ KCM.SimpleKCM {
             Layout.maximumWidth: Kirigami.Units.gridUnit * 24
         }
 
+        QQC2.CheckBox {
+            id: stayCheck
+            enabled: remindCheck.checked
+            text: i18n("Keep reminders on screen until closed")
+        }
+
         QQC2.Label {
             text: i18n("On the work days of the Daily tasks, a notification shows how many tasks are left, only while some are. Plasma's Do Not Disturb holds it back.")
             font: Kirigami.Theme.smallFont
@@ -78,6 +85,7 @@ KCM.SimpleKCM {
                 eventId: "reminder"
                 iconName: decodeURIComponent(String(Qt.resolvedUrl("../icons/todotask-logo.svg")).replace(/^file:\/\//, ""))
                 hints: ({ "x-kde-display-appname": i18n("Todo Task") })
+                flags: stayCheck.checked ? Notification.Persistent : Notification.CloseOnTimeout
                 title: i18n("3 tasks left today")
                 text: i18n("• This is how a reminder looks")
             }

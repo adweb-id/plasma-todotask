@@ -18,6 +18,9 @@ Item {
     required property int index
     required property string taskText
     required property bool carried
+    // Days since the task came to Today, and that date
+    required property int age
+    required property string since
     required property bool daily
     required property string group
     required property bool waiting
@@ -52,7 +55,10 @@ Item {
     readonly property int checkSize: Math.round(Kirigami.Units.gridUnit * 1.05)
     // A Queue row folds away with its group
     readonly property bool folded: listName === "queue" && group !== "" && widget.foldedGroups.indexOf(group) !== -1
-    property real openness: folded ? 0 : 1
+    // While searching, rows that do not match fold away and folded groups open
+    readonly property bool searchHidden: widget.searching
+        && !Tasks.matchesSearch({ text: taskText, subs: subs }, widget.searchText)
+    property real openness: (widget.searching ? searchHidden : folded) ? 0 : 1
 
     Behavior on openness {
         NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
@@ -73,6 +79,15 @@ Item {
             spec.pixelSize = f.pixelSize;
         }
         return Qt.font(spec);
+    }
+
+    // Tells the widget, which waits with reading the file again meanwhile
+    readonly property bool anyEditor: editing || editingSub !== -1 || addingSub
+    onAnyEditorChanged: widget.rowEditing = anyEditor
+    Component.onDestruction: {
+        if (anyEditor) {
+            widget.rowEditing = false;
+        }
     }
 
     // One editor at a time: opening one saves and closes the others
@@ -133,7 +148,8 @@ Item {
 
     // First row of its Queue group (re-checked whenever the rows change)
     readonly property bool groupStart: {
-        if (listName !== "queue" || group === "" || widget.groupCounts === undefined) {
+        // While searching the group shows as a label on each row instead
+        if (listName !== "queue" || group === "" || widget.groupCounts === undefined || widget.searching) {
             return false;
         }
         // While a row is being removed the one above may already be gone
@@ -531,7 +547,7 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
                     Layout.maximumWidth: Kirigami.Units.gridUnit * 6
-                    visible: row.checkable && row.group !== ""
+                    visible: (row.checkable || row.widget.searching) && row.group !== ""
                     implicitWidth: groupLabel.implicitWidth + Kirigami.Units.largeSpacing
                     implicitHeight: groupLabel.implicitHeight + 2
                     radius: height / 2
@@ -563,6 +579,8 @@ Item {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
+                // Carried over: how long ago it came to Today. The older, the
+                // stronger, so tasks that keep slipping stand out.
                 Rectangle {
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: Math.max(0, (metrics.height - height) / 2)
@@ -570,15 +588,22 @@ Item {
                     implicitWidth: yesterdayLabel.implicitWidth + Kirigami.Units.largeSpacing
                     implicitHeight: yesterdayLabel.implicitHeight + 2
                     radius: height / 2
-                    color: row.alpha(Kirigami.Theme.neutralTextColor, 0.18)
+                    color: row.alpha(Kirigami.Theme.neutralTextColor, row.age >= 7 ? 0.42 : row.age >= 3 ? 0.28 : 0.18)
 
                     PlasmaComponents3.Label {
                         id: yesterdayLabel
                         anchors.centerIn: parent
-                        text: i18n("yesterday")
-                        font: Kirigami.Theme.smallFont
-                        color: Kirigami.Theme.neutralTextColor
+                        text: row.age <= 1 ? i18n("yesterday") : i18np("%1 day", "%1 days", row.age)
+                        font: row.smallFont({ bold: row.age >= 7 })
+                        color: row.age >= 7 ? Kirigami.Theme.textColor : Kirigami.Theme.neutralTextColor
                     }
+
+                    HoverHandler {
+                        id: ageHover
+                    }
+                    QQC2.ToolTip.text: i18n("In Today since %1", Qt.formatDate(new Date(row.since + "T00:00:00"), "ddd d MMM"))
+                    QQC2.ToolTip.visible: ageHover.hovered && row.since !== ""
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
                 TapHandler {

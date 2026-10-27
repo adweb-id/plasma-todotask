@@ -45,7 +45,7 @@ EVERY DAY
 - Panel or system tray icon with the number of tasks left today
 - Today and Queue lists: Enter adds to the Queue, Shift+Enter to Today (can be swapped)
 - Tick a task: it is struck through and moves to "Done today"; untick to bring it back
-- Unfinished tasks stay in Today on a new day, marked "yesterday"
+- Unfinished tasks stay in Today on a new day, marked with how long they have been there ("yesterday", "5 days"), stronger the older they get
 - Daily routine: tasks in the Daily list are added to the top of Today every work day
 - Date variables in Daily tasks: {date}, {date-1} or {date:dd/MM/yyyy} become the date of the day, handy for a daily query or report
 
@@ -54,10 +54,12 @@ ORGANISE
 - Project groups in the Queue: fold them, add straight to a group, rename and reorder
 - Urgent mark for work that comes first: red label, kept at the top, taken first by "Pull next"
 - In review (optional): a tick in Today moves a task to In review until it has been checked, a second tick finishes it
-- Reminders (optional): a notification at the times you choose, on work days, while tasks are left
+- Reminders (optional): a notification at the times you choose, on work days, while tasks are left. It stays on screen until you close it.
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
+- Copy report: what was done on the last day and today, what is in review and what is planned, ready for a stand-up
+- Search (Ctrl+F): filter all lists as you type, subtasks included
 - Drag a task to reorder it
 - Bold and italic text: put two asterisks around words for bold, one for italic
 - Undo for 5 seconds after adding, ticking or deleting
@@ -68,7 +70,7 @@ YOUR FILE
 - Workspaces: separate lists such as Work and Personal, each in its own file, switched from the popup
 - Finished days are kept per date and moved to monthly archive files after a week
 - Lines the widget does not know (notes, code blocks, other sections) are kept exactly where they are
-- Reload with one click after editing the file elsewhere
+- Edits made elsewhere (another editor, a sync tool) show up by themselves, and the widget never writes over them
 - Settings for work days, archive age, popup width and which list Enter adds to
 
 The file looks like this:
@@ -96,9 +98,13 @@ Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ## Changelog for 0.4.0
 
 - In review (optional): with Settings, Tasks, "Send it to In review first", a tick in Today moves a task to a new In review section until it has been checked, and a second tick finishes it. Right-click, Back to Today sends it back for more work. Shift+click on the box, or right-click, Done, skip review, finishes a task at once.
-- Reminders (optional): a notification at the times you choose, on work days, while tasks are left in Today or In review. It says how many are left and names the first three, and clicking it opens the popup. The settings show which times they read and which they did not understand, and a Test button shows a reminder at once.
+- Reminders (optional): a notification at the times you choose, on work days, while tasks are left in Today or In review. It says how many are left and names the first three, and clicking it opens the popup. The settings show which times they read and which they did not understand, and a Test button shows a reminder at once. Reminders stay on screen until you close them (can be turned off), and each time shows once a day, also when Plasma restarts.
 - Notifications now come from Todo Task with its own name and logo, and can be set up in System Settings, Notifications
 - The settings are split into three pages: General, Tasks and Reminders, with the widget's own icons
+- Search with Ctrl+F or the magnifier in the footer: filters Today, In review, the Queue and the Daily list as you type, subtasks included
+- Copy report (right-click the Today heading): what was done on the last day and today, what is in review and what is planned, ready for a stand-up
+- Carried-over tasks show how long they have been in Today ("yesterday", "5 days"), stronger the older they get
+- Edits made to the file elsewhere (another editor, a sync tool) show up by themselves, and the widget never writes over them
 - Help button in the About page, leading to a new FAQ in the README
 
 ## Changelog for 0.3.0

@@ -91,6 +91,11 @@ PlasmoidItem {
     property int doneCount: 0
 
     property bool writing: false
+    // The task file as last read or written by us (see Store.STAMP): a
+    // different one on disk means someone else changed it
+    property string knownStamp: ""
+    // A task row has an editor open: reading the file again would close it
+    property bool rowEditing: false
     property bool writeQueued: false
     property bool archiving: false
 
@@ -109,6 +114,10 @@ PlasmoidItem {
 
     // The popup shows the About page instead of the lists (from the panel icon's menu)
     property bool showAbout: false
+    // Search in the popup: rows that do not match are hidden (see TaskDelegate)
+    property string searchText: ""
+    readonly property bool searching: searchText.trim() !== ""
+    readonly property int searchHits: searching && doc ? (todayTotal + reviewCount + queueTotal + dailyCount, Tasks.searchHits(doc, searchText)) : 0
     // Set by "Switch workspace…": the popup opens its workspace menu
     property bool workspaceMenuWanted: false
 
@@ -214,7 +223,8 @@ PlasmoidItem {
 
     // ---- file ----------------------------------------------------------
 
-    // announce: say in the toast that the file was read again (Reload button)
+    // announce: say in the toast that the file was read again: true for the
+    // Reload button, "outside" when it changed on disk (see watchTimer)
     function load(announce) {
         if (filePath === "" || writing) {
             return;
@@ -226,7 +236,8 @@ PlasmoidItem {
                 return;
             }
             const cut = output.indexOf("\n");
-            if (exitCode !== 0 || cut === -1) {
+            const cut2 = cut === -1 ? -1 : output.indexOf("\n", cut + 1);
+            if (exitCode !== 0 || cut2 === -1) {
                 // Never continue with an empty list here: the next save would wipe the file.
                 errorText = stderr.trim() || i18n("Could not read %1", filePath);
                 return;
@@ -234,7 +245,8 @@ PlasmoidItem {
             errorText = "";
             // The first line is the file in use: a folder setting becomes todo.md in it
             filePath = output.slice(0, cut);
-            const stdout = output.slice(cut + 1);
+            knownStamp = output.slice(cut + 1, cut2);
+            const stdout = output.slice(cut2 + 1);
             const missing = stdout === Store.MISSING;
             const fresh = missing ? Store.emptyDoc(today()) : Store.parse(stdout, today());
             adoptUids(doc, fresh);
@@ -252,6 +264,16 @@ PlasmoidItem {
                 noticeList = "";
                 noticeText = i18n("Reloaded from %1", filePath.split("/").pop());
                 undoTimer.restart();
+            } else if (announce === "outside" || announce === "conflict") {
+                // Undo would bring back the old file over the other change
+                undoSnapshot = "";
+                noticeList = "";
+                if (announce === "conflict") {
+                    noticeText = i18n("%1 was changed elsewhere. Your last change was not saved.", filePath.split("/").pop());
+                } else if (root.expanded) {
+                    noticeText = i18n("Updated: %1 was changed elsewhere", filePath.split("/").pop());
+                }
+                undoTimer.restart();
             }
         });
     }
@@ -265,9 +287,19 @@ PlasmoidItem {
             return;
         }
         writing = true;
-        runAll(Store.writeCommands(filePath, Store.serialize(doc), false, ""), (ok, message) => {
+        runAll(Store.writeCommands(filePath, Store.serialize(doc), false, "", knownStamp), (ok, message, out) => {
             writing = false;
+            if (!ok && message.indexOf(Store.CONFLICT) !== -1) {
+                // Changed on disk since we read it: keep that version, read it again
+                writeQueued = false;
+                errorText = "";
+                load("conflict");
+                return;
+            }
             errorText = ok ? "" : (message || i18n("Could not write %1", filePath));
+            if (ok) {
+                knownStamp = out.trim();
+            }
             if (writeQueued) {
                 writeQueued = false;
                 save();
@@ -282,16 +314,18 @@ PlasmoidItem {
     // Runs shell commands one after another; stops at the first failure.
     function runAll(commands, done) {
         let i = 0;
+        let last = "";
         const next = () => {
             if (i >= commands.length) {
-                done(true, "");
+                done(true, "", last);
                 return;
             }
             const started = exec(commands[i], (stdout, stderr, exitCode) => {
                 if (exitCode !== 0) {
-                    done(false, stderr.trim());
+                    done(false, stderr.trim(), stdout);
                     return;
                 }
+                last = stdout;
                 i++;
                 next();
             });
@@ -364,6 +398,9 @@ PlasmoidItem {
             uid: uidOf(task),
             taskText: task.text,
             carried: !task.daily && task.since !== "" && task.since < now,
+            // Days since it came to Today, for the carried-over label
+            age: task.daily ? 0 : Tasks.daysBetween(task.since, now),
+            since: task.since || "",
             daily: !!task.daily,
             waiting: !!task.waiting,
             urgent: !!task.urgent,
@@ -378,6 +415,8 @@ PlasmoidItem {
             uid: uidOf(task),
             taskText: task.text,
             carried: false,
+            age: 0,
+            since: "",
             daily: false,
             waiting: !!task.waiting,
             urgent: !!task.urgent,
@@ -498,6 +537,27 @@ PlasmoidItem {
         const list = doc ? doc[listName] : [];
         if (list.length > 0) {
             toClipboard(Store.copyList(list), i18np("Copied %1 task", "Copied %1 tasks", list.length));
+        }
+    }
+
+    // What was done on the last earlier day, today, what is in review and
+    // what is planned, for a stand-up or a daily report
+    function copyReport() {
+        if (!doc) {
+            return;
+        }
+        const text = Store.reportText(doc, today(), {
+            done: date => i18nc("report heading, %1 is a date", "Done %1:", date),
+            doneToday: i18nc("report heading", "Done today:"),
+            review: i18nc("report heading", "In review:"),
+            today: i18nc("report heading", "Today:")
+        }, date => Qt.formatDate(new Date(date + "T00:00:00"), "ddd d MMM"), {
+            waiting: i18nc("report note after a task", "waiting"),
+            urgent: i18nc("report note after a task", "urgent"),
+            done: i18nc("report note after a subtask", "done")
+        });
+        if (text !== "") {
+            toClipboard(text, i18n("Copied the report"));
         }
     }
 
@@ -765,6 +825,7 @@ PlasmoidItem {
         [todayModel, reviewModel, queueModel, dailyModel, doneModel].forEach(model => model.clear());
         todayCount = todayTotal = todayWaiting = reviewCount = 0;
         queueCount = queueTotal = dailyCount = doneCount = 0;
+        knownStamp = "";
         filePath = targetPath;
         load();
     }
@@ -819,15 +880,20 @@ PlasmoidItem {
         } else {
             showAbout = false;
             workspaceMenuWanted = false;
+            searchText = "";
             addGroup = "";
         }
     }
 
     // ---- reminders -----------------------------------------------------
 
-    // Reminder times already shown today (forgotten on a new day)
-    property var remindersShown: []
-    property string remindersDay: ""
+    // Reminder times already shown on `day` (none on a new day). Kept in the
+    // settings, not in memory: Plasma restarting (or logging in again) within
+    // half an hour of a reminder must not show it again.
+    function remindersShown(day) {
+        const parts = String(Plasmoid.configuration.remindersShown || "").split(" ");
+        return parts[0] === day ? parts.slice(1).filter(t => t !== "") : [];
+    }
 
     // At a reminder time on a work day, while something is left in Today or
     // In review: one notification. Plasma's Do Not Disturb holds it back.
@@ -837,19 +903,16 @@ PlasmoidItem {
         }
         const now = new Date();
         const day = today();
-        if (remindersDay !== day) {
-            remindersDay = day;
-            remindersShown = [];
-        }
         if (dailyDays().indexOf(now.getDay()) === -1) {
             return;
         }
+        const shown = remindersShown(day);
         const due = Tasks.dueReminder(Tasks.parseTimes(Plasmoid.configuration.reminderTimes),
-                                      Qt.formatTime(now, "HH:mm"), remindersShown, 30);
+                                      Qt.formatTime(now, "HH:mm"), shown, 30);
         if (due === "") {
             return;
         }
-        remindersShown = remindersShown.concat([due]);
+        Plasmoid.configuration.remindersShown = [day].concat(shown, [due]).join(" ");
         if (todayCount + reviewCount > 0) {
             showReminder();
         }
@@ -876,10 +939,34 @@ PlasmoidItem {
             eventId: "reminder"
             iconName: root.logoPath
             hints: ({ "x-kde-display-appname": i18n("Todo Task") })
+            // Not gone after a few seconds, unless that is wanted
+            flags: Plasmoid.configuration.remindersStay ? Notification.Persistent : Notification.CloseOnTimeout
             defaultAction: NotificationAction {
                 label: i18n("Open Todo Task")
                 onActivated: root.expanded = true
             }
+        }
+    }
+
+    // Notices when the file is changed elsewhere (an editor, the widget in
+    // another panel, a sync tool) and reads it again: often while the popup
+    // is open, now and then while it is closed
+    Timer {
+        id: watchTimer
+        interval: root.expanded ? 2000 : 10000
+        running: root.loaded
+        repeat: true
+        onTriggered: {
+            if (root.writing || root.rowEditing || root.knownStamp === "") {
+                return;
+            }
+            const asked = root.filePath;
+            root.exec(Store.stampCommand(asked), (stamp) => {
+                if (root.filePath === asked && !root.writing && !root.rowEditing
+                        && root.knownStamp !== "" && stamp !== root.knownStamp) {
+                    root.load("outside");
+                }
+            });
         }
     }
 

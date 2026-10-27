@@ -21,7 +21,7 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 - **Project groups** in the Queue (`### SRSX` in the file): fold each group, add to it with ＋, rename or reorder groups; a task moved to Today shows its group and goes back to it.
 - **Quick add**: Enter adds to the Queue, Shift+Enter to Today (can be swapped in the settings).
 - **Tick to finish**: the task moves to "Done today", where unticking brings it back.
-- **Carry-over**: on a new day unfinished tasks stay in Today, marked "yesterday".
+- **Carry-over**: on a new day unfinished tasks stay in Today, marked with how long they have been there ("yesterday", "5 days").
 - **Waiting**: mark tasks that are on hold; they dim, sink to the bottom and are skipped by *Pull next* and the counts.
 - **Daily routine**: tasks in the Daily list are added to the top of Today every work day.
 - **Subtasks**, one level deep, with progress such as `1/3` on the parent.
@@ -91,6 +91,15 @@ Right-click the icon for:
 - **Open todo.md** (the name of your task file): opens the file of the active workspace in your default editor.
 - **About Todo Task**: version, author, license, and buttons for the source code and bug reports.
 
+### Searching
+
+Press Ctrl+F in the popup, or click the magnifier in the footer. Typing
+filters Today, In review, the Queue and the Daily list as you go: a task shows
+when every word you typed is in its text or in one of its subtasks, in any
+case. Folded sections and Queue groups open while you search, and each Queue
+task shows its group as a label. The line under the field says how many tasks
+were found. Esc, the magnifier again or closing the popup ends the search.
+
 ### Adding tasks
 
 | Key in the input field | Adds to |
@@ -104,7 +113,7 @@ A small toast floating over the bottom of the list says where the task went, for
 ### The task row
 
 A row shows only the checkbox (Today), the text, the subtask progress and the
-"yesterday" label. Resting the pointer on it shows four buttons over the end of
+age label ("yesterday", "5 days"). Resting the pointer on it shows four buttons over the end of
 the text, without moving anything:
 
 | Button | Does |
@@ -129,12 +138,34 @@ Double-click the text to edit it: Enter saves, Esc cancels.
 | A task | Move to Today / Queue, Move to top, Move to bottom, Edit, Copy text, Add subtask, Repeat every work day (or Stop repeating), Delete |
 | A Daily task | Move to top, Move to bottom, Edit, Copy text, Add subtask, Delete |
 | A subtask | Move up, Move down (within its task), Edit, Copy text, Make it a task (a normal task right below, same group), Delete |
-| The Today heading | Copy all |
+| The Today heading | Copy all, Copy report |
 
 *Copy text* puts the task on the clipboard, ready to paste into a chat or a
 ticket: a task without subtasks as its plain text, one with subtasks as a
 Markdown list. *Copy all* on the Today heading copies the whole Today list the
-same way, e.g. for a daily report. The file's own tags are left out.
+same way. The file's own tags are left out.
+
+*Copy report* on the Today heading copies a daily report for a stand-up or a
+chat, without check boxes or tags. Sections without tasks are left out:
+
+```
+Done Fri 23 Oct:
+- Friday thing
+
+Done today:
+- Morning check
+
+In review:
+- API docs
+
+Today:
+- Fix **login** (urgent)
+  - reproduce (done)
+- Deploy (waiting)
+```
+
+"Done" is the last earlier day with finished tasks, so on a Monday it is the
+Friday before.
 
 *Delete* asks first, under the row: "Delete this task?" with **Delete** and
 **Cancel**; it gives up after 6 seconds. Deleting a task also deletes its subtasks. Ticking a parent finishes all its
@@ -165,7 +196,12 @@ three. Clicking it opens the popup. *Test* in the settings shows one at once.
 
 - A reminder up to 30 minutes late is still shown (after waking the computer),
   older ones are skipped.
+- Each time shows once a day, also when Plasma restarts or you log in again
+  within those 30 minutes.
 - Plasma's Do Not Disturb holds them back like any other notification.
+- They stay on screen until you close or click them (*Keep reminders on screen
+  until closed*, on by default). Turned off, they go away after Plasma's usual
+  time. Either way they stay in the notification history.
 
 ### In review
 
@@ -241,7 +277,7 @@ Checked when the widget loads and once a minute:
 
 1. The Today heading in the file gets today's date.
 2. On a work day, fresh copies of the Daily tasks go to the top of Today.
-3. Unfinished tasks stay in Today and show "yesterday". With *carry-over* off they go back to the top of the Queue instead.
+3. Unfinished tasks stay in Today with their age: "yesterday", then "3 days" and so on. The label gets stronger from 3 days and stands out from 7 days, so a task that keeps slipping is easy to see. Hover it for the date it came to Today. With *carry-over* off they go back to the top of the Queue instead.
 4. The Queue does not change.
 
 ## The todo.md file
@@ -273,12 +309,13 @@ Plain Markdown, readable and editable in any editor:
 ```
 
 - Tasks are `- [ ]` / `- [x]` lines; subtasks are indented two spaces under their parent.
-- The `since` comment records when a task entered Today and drives the "yesterday" label.
+- The `since` comment records when a task entered Today and drives the age label ("yesterday", "5 days").
 - Nothing is lost or moved away from its task: deeper indented lines, paragraphs and code blocks are kept as notes of the task or subtask above them, exactly where they were. Code blocks are never read as tasks.
 - A bullet without a box (`- text`) counts as a task and is written back as `- [ ] text`.
 - Any other `#`/`##` section is kept whole (it moves below Done) and never read as tasks.
 - A task is one line: line breaks in pasted text become spaces.
-- Edits made in another editor are picked up when the popup opens, or at once with the ⟳ button in the footer.
+- Edits made elsewhere (another editor, the widget in another panel, a sync tool) are picked up by themselves: within two seconds while the popup is open, within ten while it is closed. The ⟳ button in the footer reads the file at once.
+- The widget never writes over such an edit. Before saving it checks that the file is still the one it read. If not, it keeps the file as it is, reads it again and says that your last change was not saved. While a task is being edited in the popup, reading the file again waits until you are done.
 
 Finished days older than *Archive after* move to a monthly file next to it,
 for example `todo-archive-2026-10.md`. A day is removed from `todo.md` only
@@ -308,6 +345,7 @@ pages: **General** (task file and workspaces, Enter, popup width), **Tasks**
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
 | Reminders: remind me to check the list | off, times 11:00, 15:00 | A notification at these times on work days while tasks are left |
+| Reminders: keep reminders on screen until closed | on | Off: they go away after Plasma's usual time |
 | Ticking a task: send it to In review first | off | A tick in Today moves the task to In review, a tick there finishes it |
 | Daily tasks on | Mon–Fri | Work days the Daily tasks are added to Today |
 | Archive finished tasks after (days) | 7 | 0 keeps everything in `todo.md` |
@@ -359,6 +397,12 @@ entries.
 
 **Changes do not show after updating.**
 Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
+
+**I edited the file in another editor. Can the widget overwrite that?**
+No. The widget notices the change within a few seconds and reads the file
+again. If you change something in the popup at the very moment the file
+changed elsewhere, the other edit wins and the popup says that your change was
+not saved, so you can make it again.
 
 **The badge shows `!`.**
 Hover it for the error. Check that the file shown in the popup footer is

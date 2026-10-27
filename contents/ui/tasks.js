@@ -540,6 +540,12 @@ function styled(text) {
 }
 
 // "2026-10-06" minus 7 days -> "2026-09-29"
+// Whole days from `since` to `today` (both "yyyy-MM-dd"), 0 when unknown
+function daysBetween(since, today) {
+    var days = Math.round((Date.parse(today + "T00:00:00Z") - Date.parse(since + "T00:00:00Z")) / 86400000);
+    return isNaN(days) ? 0 : days;
+}
+
 function daysBefore(date, days) {
     var time = Date.parse(date + "T00:00:00Z") - days * 86400000;
     return new Date(time).toISOString().slice(0, 10);
@@ -628,4 +634,31 @@ function reminderText(doc, max) {
         lines.push("…");
     }
     return lines.join("\n");
+}
+
+// ---- search -----------------------------------------------------------------
+
+// Every word of `query` is in the task text or in one of its subtasks
+// (any case, ** and * left out)
+function matchesSearch(task, query) {
+    var words = String(query || "").toLowerCase().split(/\s+/).filter(function (w) { return w !== ""; });
+    if (words.length === 0) {
+        return true;
+    }
+    var hay = [task.text].concat((task.subs || []).map(function (s) { return s.text; }))
+        .join("\n").toLowerCase().replace(/\*+/g, "");
+    return words.every(function (w) { return hay.indexOf(w) !== -1; });
+}
+
+// How many tasks in Today, In review, the Queue and the Daily list match
+function searchHits(doc, query) {
+    var hits = 0;
+    ["today", "review", "queue", "daily"].forEach(function (name) {
+        (doc[name] || []).forEach(function (t) {
+            if (matchesSearch(t, query)) {
+                hits++;
+            }
+        });
+    });
+    return hits;
 }
