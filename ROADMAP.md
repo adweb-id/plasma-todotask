@@ -15,33 +15,23 @@ items can change; suggestions are welcome in the
 | 0.2.1 | Switch workspace from the widget's right-click menu |
 | 0.2.2 | Bold and italic from a small bar over the selected text, or Ctrl+B / Ctrl+I; one editor open at a time |
 | 0.3.0 | Urgent mark (red label, top of its list, taken first by Pull next); date variables in Daily tasks such as `{date}` and `{date:dd/MM/yyyy}` |
+| 0.4.0 | In review (an optional second tick for work that has to be checked); reminders at set times; search with Ctrl+F; Copy report for a stand-up; age of carried-over tasks; outside edits picked up and never overwritten; settings on three pages; Help and FAQ |
 
 ## Planned
 
-### 0.4
+### 0.5
 
-- **Auto-reload**: pick up changes made to the task file in another editor right
-  away, without reopening the popup or pressing reload.
-- **Safe saving**: check the file before writing, so two widgets (panel and
-  system tray) or an outside edit never overwrite each other.
 - **Task notes in the popup**: show the notes kept under a task or subtask
-  (steps, a query, a link). They are already preserved in the file.
+  (steps, a query, how a bug was fixed) and write them from the popup. They
+  are already kept in the file.
 - **Badge setting**: choose what the panel badge counts (Today, Today and
   Queue) or hide it when nothing is left.
 - **Delete confirmation setting**: switch the confirmation off when Undo is
   enough for you.
-
-### 0.5
-
-- **Copy report**: copy "done yesterday" plus today's plan in one click, for a
-  daily report.
 - **Waiting overview**: see every waiting task across all groups in one place.
-- **Stale marker**: show how long an unfinished task has been carried over
-  ("3 days") instead of only "yesterday".
 
 ### 0.6
 
-- **Search**: filter tasks in all lists as you type.
 - **Keyboard**: a shortcut to open the popup with the input focused, arrow
   keys to move between tasks, Space to tick.
 
