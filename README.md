@@ -7,7 +7,7 @@ everything is stored in one plain Markdown file you can also edit by hand.
 **Get it from the [KDE Store](https://www.opendesktop.org/p/2377548/)**, or download
 the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-todotask/releases/latest).
 
-![Todo Task](docs/screenshots/overview.png)
+![Todo Task in the system tray, next to its task file open in Kate](docs/screenshots/overview.png)
 
 - Pure QML + JavaScript, nothing to compile
 - Follows your Plasma theme (light and dark, Wayland and X11)
@@ -33,14 +33,14 @@ the `.plasmoid` from the [latest release](https://github.com/adweb-id/plasma-tod
 
 ## Screenshots
 
-| | | |
-| --- | --- | --- |
-| ![Today and the Queue](docs/screenshots/overview.png) | ![Right-click menu](docs/screenshots/menu.png) | ![Project groups and Daily](docs/screenshots/groups.png) |
-| Today with subtasks, carried-over and Daily tasks; the Queue in project groups | Right-click menu of a task | Groups folded, adding straight to the API group, the Daily list |
-| ![Undo after adding](docs/screenshots/toast.png) | ![Light theme](docs/screenshots/overview-light.png) | |
-| Every change can be undone for 5 seconds | Follows the Plasma theme, light or dark | |
+| | |
+| --- | --- |
+| ![Search](docs/screenshots/search.png) | ![Right-click menu](docs/screenshots/menu.png) |
+| Search (Ctrl+F) across all lists | Right-click menu of a task |
+| ![Reminder](docs/screenshots/reminder.png) | ![Settings](docs/screenshots/settings.png) |
+| A reminder to check the list | Settings on three pages |
 
-Screenshots use demo data; see *Development* to regenerate them.
+Screenshots use demo data on a stock Plasma desktop. See *Development* to regenerate them.
 
 ## Requirements
 
@@ -438,15 +438,17 @@ writable, then use *Try again* in the popup.
 
 ### Screenshots
 
-    sh tools/screenshots/take.sh             # all of them
+    sh tools/screenshots/take.sh             # all five
     sh tools/screenshots/take.sh menu        # one scenario
 
-The script installs a temporary copy of the widget and runs it inside a virtual
-KWin (its own Wayland display and D-Bus session) with a separate config folder
-and the demo file `tools/screenshots/demo-todo.md`. Nothing appears on your
-screen, your own `todo.md` and settings are not touched, and no screen capture
-is taken: the widget renders itself to a PNG, which `frame.py` lays on the
-Breeze popup background. Needs KWin and Python with Pillow.
+The script starts a whole Plasma desktop (Breeze Light, 1440x900) inside a
+virtual KWin, with its own Wayland display, D-Bus session, home, config and
+data folders, and only KDE's own defaults. It puts Todo Task in the system
+tray with the demo file `tools/screenshots/demo-todo.md`,
+`ScreenshotDriver.qml` opens the popup in each scenario, and Spectacle captures
+the virtual screen. Nothing appears on your screen, your own files, settings
+and theme are not touched, and every process of the demo desktop is ended
+afterwards. Needs plasmashell, kwin_wayland, Spectacle, Kate and Python.
 
 Build a release file:
 
