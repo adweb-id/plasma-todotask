@@ -2,6 +2,7 @@ import QtQuick
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasma5support as Plasma5Support
+import org.kde.notification
 
 import "store.js" as Store
 import "tasks.js" as Tasks
@@ -730,7 +731,11 @@ PlasmoidItem {
 
     // ---- lifecycle -----------------------------------------------------
 
+    // The widget's colour icon, as a file path (for notifications)
+    readonly property string logoPath: decodeURIComponent(String(Qt.resolvedUrl("../icons/todotask-logo.svg")).replace(/^file:\/\//, ""))
+
     Component.onCompleted: {
+        exec(Store.notifyrcCommand(logoPath), () => {});
         exec(Store.folderCommand(), (stdout) => {
             const lines = stdout.split("\n");
             homeFolder = lines[0].trim();
@@ -818,6 +823,66 @@ PlasmoidItem {
         }
     }
 
+    // ---- reminders -----------------------------------------------------
+
+    // Reminder times already shown today (forgotten on a new day)
+    property var remindersShown: []
+    property string remindersDay: ""
+
+    // At a reminder time on a work day, while something is left in Today or
+    // In review: one notification. Plasma's Do Not Disturb holds it back.
+    function checkReminders() {
+        if (!Plasmoid.configuration.remindersOn || !doc) {
+            return;
+        }
+        const now = new Date();
+        const day = today();
+        if (remindersDay !== day) {
+            remindersDay = day;
+            remindersShown = [];
+        }
+        if (dailyDays().indexOf(now.getDay()) === -1) {
+            return;
+        }
+        const due = Tasks.dueReminder(Tasks.parseTimes(Plasmoid.configuration.reminderTimes),
+                                      Qt.formatTime(now, "HH:mm"), remindersShown, 30);
+        if (due === "") {
+            return;
+        }
+        remindersShown = remindersShown.concat([due]);
+        if (todayCount + reviewCount > 0) {
+            showReminder();
+        }
+    }
+
+    function showReminder() {
+        const parts = [todayCount > 0 ? i18np("1 task left today", "%1 tasks left today", todayCount)
+                                      : i18n("Nothing left today")];
+        if (reviewCount > 0) {
+            parts.push(i18n("%1 in review", reviewCount));
+        }
+        const list = Tasks.reminderText(doc, 3);
+        reminderComponent.createObject(root, {
+            title: parts.join(" · "),
+            text: list
+        }).sendEvent();
+    }
+
+    Component {
+        id: reminderComponent
+
+        Notification {
+            componentName: "todotask"
+            eventId: "reminder"
+            iconName: root.logoPath
+            hints: ({ "x-kde-display-appname": i18n("Todo Task") })
+            defaultAction: NotificationAction {
+                label: i18n("Open Todo Task")
+                onActivated: root.expanded = true
+            }
+        }
+    }
+
     // New day check
     Timer {
         interval: 60000
@@ -831,6 +896,7 @@ PlasmoidItem {
                 root.save();
                 root.archiveOld();
             }
+            root.checkReminders();
         }
     }
 }

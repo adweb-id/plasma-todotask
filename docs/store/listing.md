@@ -54,6 +54,7 @@ ORGANISE
 - Project groups in the Queue: fold them, add straight to a group, rename and reorder
 - Urgent mark for work that comes first: red label, kept at the top, taken first by "Pull next"
 - In review (optional): a tick in Today moves a task to In review until it has been checked, a second tick finishes it
+- Reminders (optional): a notification at the times you choose, on work days, while tasks are left
 - Waiting status for work on hold: dimmed, kept at the bottom, skipped by "Pull next"
 - Subtasks with progress (1/3): add one with the + button, reorder them, or make one a task of its own
 - Copy a task, a subtask or the whole Today list to the clipboard (right-click)
@@ -91,6 +92,14 @@ After installing, right-click the panel, choose "Add Widgets…" and drag Todo T
 
 Bugs and ideas: https://github.com/adweb-id/plasma-todotask/issues
 ```
+
+## Changelog for 0.4.0
+
+- In review (optional): with Settings, Tasks, "Send it to In review first", a tick in Today moves a task to a new In review section until it has been checked, and a second tick finishes it. Right-click, Back to Today sends it back for more work. Shift+click on the box, or right-click, Done, skip review, finishes a task at once.
+- Reminders (optional): a notification at the times you choose, on work days, while tasks are left in Today or In review. It says how many are left and names the first three, and clicking it opens the popup. The settings show which times they read and which they did not understand, and a Test button shows a reminder at once.
+- Notifications now come from Todo Task with its own name and logo, and can be set up in System Settings, Notifications
+- The settings are split into three pages: General, Tasks and Reminders, with the widget's own icons
+- Help button in the About page, leading to a new FAQ in the README
 
 ## Changelog for 0.3.0
 

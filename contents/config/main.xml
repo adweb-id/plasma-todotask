@@ -38,6 +38,14 @@
       <label>Ticking a task in Today sends it to In review first, ticking it there finishes it</label>
       <default>false</default>
     </entry>
+    <entry name="remindersOn" type="Bool">
+      <label>Show a notification at the reminder times while tasks are left</label>
+      <default>false</default>
+    </entry>
+    <entry name="reminderTimes" type="String">
+      <label>Reminder times, e.g. "11:00, 15:00"</label>
+      <default>11:00, 15:00</default>
+    </entry>
     <entry name="carryOver" type="Bool">
       <default>true</default>
     </entry>

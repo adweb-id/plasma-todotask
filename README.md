@@ -155,6 +155,18 @@ The Queue can be split into groups, one per project. In the file a group is a
 - Dragging reorders within a group. A task moved to Today shows its group as a
   small label and returns to the same group when moved back.
 
+### Reminders
+
+Off by default. Turn on *Reminders: Remind me to check the list* in the
+settings and write the times, e.g. `11:00, 15:00, 16:45`. At those times, on
+the work days of the Daily tasks and only while something is left in Today or
+In review, a notification says how many tasks are left and names the first
+three. Clicking it opens the popup. *Test* in the settings shows one at once.
+
+- A reminder up to 30 minutes late is still shown (after waking the computer),
+  older ones are skipped.
+- Plasma's Do Not Disturb holds them back like any other notification.
+
 ### In review
 
 For work that has to be checked (QC, a review, a confirmation) before it
@@ -285,7 +297,9 @@ of the widget has *Switch to …* as well.
 
 ## Settings
 
-Right-click the widget → *Configure Todo Task…*
+Right-click the widget → *Configure Todo Task…*. The settings are on three
+pages: **General** (task file and workspaces, Enter, popup width), **Tasks**
+(new day, In review, Daily work days, archive) and **Reminders**.
 
 | Setting | Default | Notes |
 | --- | --- | --- |
@@ -293,6 +307,7 @@ Right-click the widget → *Configure Todo Task…*
 | Enter adds a task to | Queue | Shift+Enter always adds to the other list |
 | Popup width (pixels) | 380 | 300 to 800 |
 | New day: keep unfinished tasks in Today | on | Off sends them back to the Queue |
+| Reminders: remind me to check the list | off, times 11:00, 15:00 | A notification at these times on work days while tasks are left |
 | Ticking a task: send it to In review first | off | A tick in Today moves the task to In review, a tick there finishes it |
 | Daily tasks on | Mon–Fri | Work days the Daily tasks are added to Today |
 | Archive finished tasks after (days) | 7 | 0 keeps everything in `todo.md` |
@@ -305,11 +320,49 @@ Right-click the widget → *Configure Todo Task…*
   be read as a command and the file size is not limited.
 - Nothing runs in the background except the once-a-minute date check.
 
-## Troubleshooting
+## FAQ
 
-- **The widget is not in the panel after installing.** Installing only registers it; add it with *Add Widgets…* or in the system tray entries.
-- **Changes do not show after updating.** Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
-- **The badge shows `!`.** Hover it for the error; check that the file shown in the popup footer is writable, then use *Try again* in the popup.
+**Where is my task file, and where do finished tasks go?**
+The popup footer shows the file in use (by default `Documents/todotask/todo.md`,
+or `Documents/todo.md` if you had one before 0.2.0). *Open file* opens it.
+Finished days older than *Archive after* move to monthly files next to it,
+e.g. `todo-archive-2026-10.md`.
+
+**Why are today's Daily tasks not in Today?**
+They are added on the work days set in *Settings → Tasks → Daily tasks on*,
+when the widget first sees the new day. A Daily task still in In review stays
+there, and today's copy is added to Today next to it.
+
+**How do I put today's date in a Daily task?**
+Write `{date}` in the task, a subtask or a note in the Daily list, e.g.
+`created_at LIKE '{date}%'`. See [Daily tasks](#daily-tasks) for `{date-1}`
+and other formats.
+
+**Why does a ticked task go to In review instead of Done?**
+*Settings → Tasks → Ticking a task: Send it to In review first* is on. Tick it
+again in In review, or finish it at once with Shift+click on the box or
+right-click → *Done, skip review*.
+
+**Why does no reminder show?**
+Check that *Settings → Reminders* is on and that the line under the times
+says *Reminders at …* with your times. Reminders show only on work days and
+only while something is left in Today or In review. Do Not Disturb holds them
+back. *Test* shows one at once, so you can see that notifications get through.
+
+**Two workspaces show the same tasks.**
+Their paths point at the same file. The settings say *Same file as …* under
+such a row. Give each workspace its own file or folder.
+
+**The widget is not in the panel after installing.**
+Installing only registers it. Add it with *Add Widgets…* or in the system tray
+entries.
+
+**Changes do not show after updating.**
+Restart Plasma: `kquitapp6 plasmashell && kstart plasmashell`.
+
+**The badge shows `!`.**
+Hover it for the error. Check that the file shown in the popup footer is
+writable, then use *Try again* in the popup.
 
 ## Development
 
